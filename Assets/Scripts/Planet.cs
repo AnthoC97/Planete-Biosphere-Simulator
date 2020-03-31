@@ -1,21 +1,70 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
+using UnityEngine.Serialization;
+
+[Serializable]
+public struct LODConfig
+{
+    public float range;
+    public int resolutionDivisor;
+    //public bool useTesselation;
+}
 
 public class Planet : MonoBehaviour
 {
-    //Number of vertices in width and height
-    [Range(2,256)]
-    public int resolution = 10;
+    public bool debug = false;
 
     [SerializeField, HideInInspector]
     MeshFilter[] meshFilters;
     TerrainFace[] terrainFaces;
 
-    private void OnValidate()
+    public float radius = 10;
+    public static Transform cameraTransform;
+
+    Vector3 lastCameraPosition;
+    public float lodThreshold = 0;
+    [Min(0.1f)]
+    public float intervalUpdateLOD = 0.5f;
+    public LODConfig[] lods;
+
+    public static Planet instance;
+
+
+    /*private void OnValidate()
     {
         Initialize();
         GenerateMesh();
+    }*/
+
+    private void Awake()
+    {
+        cameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
+        lastCameraPosition = cameraTransform.position;
+    }
+
+    private void Start()
+    {
+        instance = this;
+        Initialize();
+        GenerateMesh();
+
+        StartCoroutine(PlanetGenerationLoop());
+    }
+
+    IEnumerator PlanetGenerationLoop()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(intervalUpdateLOD);
+            if (Vector3.Distance(cameraTransform.position, lastCameraPosition) > lodThreshold)
+            {
+                lastCameraPosition = cameraTransform.position;
+                UpdateMesh();
+            }
+        }
     }
 
     private void Initialize()
@@ -23,12 +72,13 @@ public class Planet : MonoBehaviour
         if (meshFilters == null || meshFilters.Length == 0)
         {
             meshFilters = new MeshFilter[6];
+            
         }
         terrainFaces = new TerrainFace[6];
-
         Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
-        for(int i=0; i<6; ++i)
+        // Pour chaque direction crée un TerrainFace
+        for (int i=0; i<6; ++i)
         {
             if (meshFilters[i] == null)
             {
@@ -39,7 +89,8 @@ public class Planet : MonoBehaviour
                 meshFilters[i].sharedMesh = new Mesh();
             }
 
-            terrainFaces[i] = new TerrainFace(meshFilters[i].sharedMesh, resolution, directions[i]);
+            //terrainFaces[i] = new TerrainFace(meshFilters[i].sharedMesh, resolution, directions[i]);
+            terrainFaces[i] = new TerrainFace(meshFilters[i].sharedMesh, directions[i]);
         }
     }
 
@@ -47,7 +98,29 @@ public class Planet : MonoBehaviour
     {
         foreach(TerrainFace face in terrainFaces)
         {
-            face.ConstructMesh();
+            //face.ConstructMesh();
+            face.ConstructTree();
+        }
+    }
+
+    void UpdateMesh()
+    {
+        foreach (TerrainFace face in terrainFaces)
+        {
+            face.UpdateTree();
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!debug || terrainFaces == null) return;
+        foreach (TerrainFace tf in terrainFaces)
+        {
+            foreach (Chunk chunk in tf.GetVisibleChunks())
+            {
+                Gizmos.color = Color.Lerp(Color.red, Color.green, (float)chunk.detailLevel / (lods.Length - 1));
+                Gizmos.DrawSphere(chunk.position.normalized * radius, Mathf.Lerp((lods.Length - 1)/2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
+            }
         }
     }
 }

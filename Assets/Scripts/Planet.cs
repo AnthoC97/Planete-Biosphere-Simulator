@@ -12,6 +12,7 @@ public struct LODConfig
     //public bool useTesselation;
 }
 
+[RequireComponent(typeof(EdgeFansPresets))]
 public class Planet : MonoBehaviour
 {
     public bool debug = false;
@@ -20,8 +21,11 @@ public class Planet : MonoBehaviour
     MeshFilter[] meshFilters;
     TerrainFace[] terrainFaces;
 
+    [HideInInspector]
+    public PBSNoiseGenerator noiseGenerator;
+
     public float radius = 10;
-    public static Transform cameraTransform;
+    public Transform cameraTransform;
 
     public float cullingMinAngle = 45.0f;
     Vector3 lastCameraPosition;
@@ -29,8 +33,6 @@ public class Planet : MonoBehaviour
     [Min(0.1f)]
     public float intervalUpdateLOD = 0.5f;
     public LODConfig[] lods;
-
-    public static Planet instance;
 
 
     /*private void OnValidate()
@@ -43,11 +45,15 @@ public class Planet : MonoBehaviour
     {
         cameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
         lastCameraPosition = cameraTransform.position;
+        PBSNoiseScript pbsNoiseScript = GetComponent<PBSNoiseScript>();
+        if (pbsNoiseScript)
+            noiseGenerator = pbsNoiseScript.GetNoiseGenerator();
+        else
+            noiseGenerator = new PBSNoiseGenerator();
     }
 
     private void Start()
     {
-        instance = this;
         Initialize();
         GenerateMesh();
 
@@ -89,8 +95,7 @@ public class Planet : MonoBehaviour
                 meshFilters[i].sharedMesh = new Mesh();
             }
 
-            //terrainFaces[i] = new TerrainFace(meshFilters[i].sharedMesh, resolution, directions[i]);
-            terrainFaces[i] = new TerrainFace(meshFilters[i].sharedMesh, directions[i]);
+            terrainFaces[i] = new TerrainFace(meshFilters[i].sharedMesh, directions[i], this);
         }
     }
 
@@ -120,6 +125,11 @@ public class Planet : MonoBehaviour
             {
                 Gizmos.color = Color.Lerp(Color.red, Color.green, (float)chunk.detailLevel / (lods.Length - 1));
                 Gizmos.DrawSphere(chunk.position.normalized * radius, Mathf.Lerp((lods.Length - 1)/2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
+
+                Gizmos.color = Color.red;
+                chunk.GetNeighbourLOD();
+                foreach (byte b in chunk.neighbours)
+                    if (b == 1) Gizmos.DrawWireCube(chunk.position.normalized * radius, Vector3.one * Mathf.Lerp((lods.Length - 1) / 2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
             }
         }
     }

@@ -334,25 +334,18 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   radius: 200
+  cullingMinAngle: 1.5
   lodThreshold: 1
   intervalUpdateLOD: 0.5
   lods:
   - range: 1e+17
-    resolutionDivisor: 0
   - range: 200
-    resolutionDivisor: 0
   - range: 150
-    resolutionDivisor: 0
   - range: 100
-    resolutionDivisor: 0
   - range: 50
-    resolutionDivisor: 0
   - range: 30
-    resolutionDivisor: 0
   - range: 15
-    resolutionDivisor: 0
   - range: 10
-    resolutionDivisor: 0
 --- !u!4 &1583251944
 Transform:
   m_ObjectHideFlags: 0

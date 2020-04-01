@@ -7,7 +7,6 @@ public class TerrainFace
     Dictionary<Chunk, GameObject> debugSpheres = new Dictionary<Chunk, GameObject>();
 
     volatile Mesh mesh;
-    //int resolution;
     Vector3 localUp;
     // The other axis
     Vector3 axisA;
@@ -17,7 +16,7 @@ public class TerrainFace
     public List<Vector3> vertices = new List<Vector3>();
     public List<int> triangles = new List<int>();
 
-    public TerrainFace(Mesh mesh/*, int resolution*/, Vector3 localUp)
+    public TerrainFace(Mesh mesh, Vector3 localUp)
     {
         this.mesh = mesh;
         //this.resolution = resolution;
@@ -187,7 +186,10 @@ public class Chunk
         }
         else
         {
-            toBeRendered.Add(this);
+            float distanceToPlayer = Vector3.Distance(position.normalized * Planet.instance.radius, Planet.cameraTransform.position);
+            float distancePlanetToPlayer = Planet.cameraTransform.position.magnitude;
+            if (Mathf.Acos(((Planet.instance.radius * Planet.instance.radius) + (distanceToPlayer * distanceToPlayer) - (distancePlanetToPlayer * distancePlanetToPlayer)) / (2 * Planet.instance.radius * distanceToPlayer)) > Planet.instance.cullingMinAngle)
+                toBeRendered.Add(this);
         }
 
         return toBeRendered.ToArray();

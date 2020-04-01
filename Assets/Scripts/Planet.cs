@@ -9,7 +9,6 @@ using UnityEngine.Serialization;
 public struct LODConfig
 {
     public float range;
-    public int resolutionDivisor;
     //public bool useTesselation;
 }
 
@@ -24,6 +23,7 @@ public class Planet : MonoBehaviour
     public float radius = 10;
     public static Transform cameraTransform;
 
+    public float cullingMinAngle = 45.0f;
     Vector3 lastCameraPosition;
     public float lodThreshold = 0;
     [Min(0.1f)]

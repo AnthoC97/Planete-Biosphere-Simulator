@@ -65,7 +65,7 @@ public class Planet : MonoBehaviour
         while(true)
         {
             yield return new WaitForSeconds(intervalUpdateLOD);
-            if (Vector3.Distance(cameraTransform.position, lastCameraPosition) > lodThreshold)
+            if (Vector3.Distance(cameraTransform.position, lastCameraPosition) >= lodThreshold)
             {
                 lastCameraPosition = cameraTransform.position;
                 UpdateMesh();
@@ -103,7 +103,6 @@ public class Planet : MonoBehaviour
     {
         foreach(TerrainFace face in terrainFaces)
         {
-            //face.ConstructMesh();
             face.ConstructTree();
         }
     }
@@ -132,5 +131,11 @@ public class Planet : MonoBehaviour
                     if (b == 1) Gizmos.DrawWireCube(chunk.position.normalized * radius, Vector3.one * Mathf.Lerp((lods.Length - 1) / 2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
             }
         }
+    }
+
+    public void UpdateNoiseGenerator(PBSNoiseGenerator noiseGenerator)
+    {
+        this.noiseGenerator = noiseGenerator;
+        GenerateMesh();
     }
 }

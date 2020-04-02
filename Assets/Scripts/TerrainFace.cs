@@ -430,8 +430,9 @@ public class Chunk
         {
             Vector3 pointOnCube = transformMatrix.MultiplyPoint(EdgeFansPresets.quadTemplateVertices[quadIndex][i]);
             Vector3 pointOnUnitSphere = pointOnCube.normalized;
-            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere)*10;
-            vertices[i] = pointOnUnitSphere * (planet.radius + elevation);
+            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere);
+            //vertices[i] = pointOnUnitSphere * (planet.radius + elevation);
+            vertices[i] = pointOnUnitSphere *(1+elevation)* planet.radius;
         }
 
         // Do the same for the border vertices
@@ -441,8 +442,9 @@ public class Chunk
         {
             Vector3 pointOnCube = transformMatrix.MultiplyPoint(EdgeFansPresets.quadTemplateBorderVertices[quadIndex][i]);
             Vector3 pointOnUnitSphere = pointOnCube.normalized;
-            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere)*10;
-            borderVertices[i] = pointOnUnitSphere * (planet.radius + elevation);
+            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere);
+            //borderVertices[i] = pointOnUnitSphere * (planet.radius + elevation);
+            borderVertices[i] = pointOnUnitSphere * (1 + elevation) * planet.radius;
         }
 
         // Store the triangles

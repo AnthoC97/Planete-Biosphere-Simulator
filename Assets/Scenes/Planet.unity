@@ -198,7 +198,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 89445700}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -145.8, y: 1, z: -150.9}
+  m_LocalPosition: {x: 0, y: 1, z: -200}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -308,6 +308,7 @@ GameObject:
   - component: {fileID: 1583251943}
   - component: {fileID: 1583251945}
   - component: {fileID: 1583251946}
+  - component: {fileID: 1583251947}
   m_Layer: 0
   m_Name: Planet
   m_TagString: Untagged
@@ -387,3 +388,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebd9d716dfe799443bce6565ab571275, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  seed1: 0
+  seed2: 0
+  seed3: 0
+--- !u!114 &1583251947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1583251942}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ec1a6e7c50cb449a59e008386a723a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interval: 5
+  populationSize: 20
+  debug: 0
+  sectorCount: 6
+  stackCount: 6

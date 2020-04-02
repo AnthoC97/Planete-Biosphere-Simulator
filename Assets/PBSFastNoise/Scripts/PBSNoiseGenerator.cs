@@ -12,6 +12,6 @@ public class PBSNoiseGenerator
 
     public static implicit operator PBSNoiseGenerator(int i)
     {
-        return new PBSNoiseConstantModule(i);
+        return new ConstantNoiseModule(i);
     }
 }

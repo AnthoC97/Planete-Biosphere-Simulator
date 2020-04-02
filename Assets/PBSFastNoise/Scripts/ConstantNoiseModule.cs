@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PBSNoiseConstantModule : PBSNoiseGenerator
+public class ConstantNoiseModule : PBSNoiseGenerator
 {
     private int constantVal;
-    public PBSNoiseConstantModule(int constantVal)
+    public ConstantNoiseModule(int constantVal)
     {
         this.constantVal = constantVal;
     }

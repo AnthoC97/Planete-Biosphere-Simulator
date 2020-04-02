@@ -430,7 +430,7 @@ public class Chunk
         {
             Vector3 pointOnCube = transformMatrix.MultiplyPoint(EdgeFansPresets.quadTemplateVertices[quadIndex][i]);
             Vector3 pointOnUnitSphere = pointOnCube.normalized;
-            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere);//new FastNoise(151232).GetSimplexFractal(pointOnUnitSphere.x * 100, pointOnUnitSphere.y * 100, pointOnUnitSphere.z * 100) * 10;
+            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere)*10;
             vertices[i] = pointOnUnitSphere * (planet.radius + elevation);
         }
 
@@ -441,7 +441,7 @@ public class Chunk
         {
             Vector3 pointOnCube = transformMatrix.MultiplyPoint(EdgeFansPresets.quadTemplateBorderVertices[quadIndex][i]);
             Vector3 pointOnUnitSphere = pointOnCube.normalized;
-            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere);
+            float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere)*10;
             borderVertices[i] = pointOnUnitSphere * (planet.radius + elevation);
         }
 

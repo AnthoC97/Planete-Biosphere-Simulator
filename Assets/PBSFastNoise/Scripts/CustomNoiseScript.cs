@@ -1,17 +1,80 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TreeEditor;
 using UnityEngine;
 
 public class CustomNoiseScript : PBSNoiseScript
 {
     [Range(0, 999999)]
-    public int seed1;
+    public int seedPlains;
+
+    [Range(0, 2)]
+    public float frequencyPlains;
+
+    [Range(0f, 0f)]
+    public float fractalGainPlains;
+
+    [Range(0, 20)]
+    public int octavePlains;
+
+    [Range(0, 10)]
+    public float lacunarityPlains;
+
+
+    [Range(0, 10)]
+    public int seedMountains;
+
+    [Range(0, 2)]
+    public float frequencyMountains;
+
+    [Range(0f, 0f)]
+    public float fractalGainMountains;
+
+    [Range(0, 20)]
+    public int octaveMountains;
+
+    [Range(0, 10)]
+    public float lacunarityMountains;
+
 
     [Range(0, 999999)]
-    public int seed2;
+    public int seedMask;
 
-    [Range(0, 999999)]
-    public int seed3;
+    [Range(0, 2)]
+    public float frequencyMask;
+
+    [Range(0f, 0f)]
+    public float fractalGainMask;
+
+    [Range(0, 20)]
+    public int octaveMask;
+
+    [Range(0, 10)]
+    public float lacunarityMask;
+
+
+    [Range(0.5f, 0.5f)]
+    public float falloffSelect;
+
+    [Range(0, 0)]
+    public float thresholdSelect;
+
+    [Range(0, 4)]
+    public int numStepsSelect;
+
+    public SelectInterpType selectInterpType;
+
+    public FractalNoiseType fractalNoiseTypePlains;
+    public FastNoise.Interp interpPlains;
+    public FastNoise.FractalType fractalTypePlains;
+
+    public FractalNoiseType fractalNoiseTypeMountains;
+    public FastNoise.Interp interpMountains;
+    public FastNoise.FractalType fractalTypeMountains;
+
+    public FractalNoiseType fractalNoiseTypeMask;
+    public FastNoise.Interp interpMask;
+    public FastNoise.FractalType fractalTypeMask;
 
     public override PBSNoiseGenerator GetNoiseGenerator()
     {
@@ -29,17 +92,20 @@ public class CustomNoiseScript : PBSNoiseScript
 
         PBSNoiseGenerator scaleModule = new ScaleBiasNoiseModule(fractalGenerator, 10, 0); // scale fractal by 10
         return scaleModule;*/
-        PBSNoiseGenerator fractalPlaineGenerator = new FractalNoiseGenerator(FractalNoiseType.Perlin, seed1, 0.8f, 0.5f, FastNoise.Interp.Hermite, FastNoise.FractalType.FBM, 3, 1.0f);
+        PBSNoiseGenerator fractalPlaineGenerator = new FractalNoiseGenerator(fractalNoiseTypePlains, seedPlains, frequencyPlains, fractalGainPlains, interpPlains, fractalTypePlains, octavePlains, lacunarityPlains);
 
-        PBSNoiseGenerator fractalMountainsGenerator = new FractalNoiseGenerator(FractalNoiseType.Perlin, seed2, 1.0f, 0.5f, FastNoise.Interp.Hermite, FastNoise.FractalType.FBM, 6, 2.0f);
+        PBSNoiseGenerator fractalMountainsGenerator = new FractalNoiseGenerator(fractalNoiseTypeMountains, seedMountains, frequencyMountains, fractalGainMountains, interpMountains, fractalTypeMountains, octaveMountains, lacunarityMountains);;
         //PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(fractalMountainsGenerator, 100.0f, 0.1f);
         //return scaleBiasGenerator;
 
-        PBSNoiseGenerator maskGenerator = new FractalNoiseGenerator(FractalNoiseType.Perlin, seed3, 1.6f, 0.5f, FastNoise.Interp.Hermite, FastNoise.FractalType.FBM, 1, 1.8f);
-        //PBSNoiseGenerator scaleMaskGenerator = new ScaleBiasNoiseModule(maskGenerator, 100.0f, 0.1f);
+        PBSNoiseGenerator maskGenerator = new FractalNoiseGenerator(fractalNoiseTypeMask, seedMask, frequencyMask, fractalGainMask, interpMask, fractalTypeMask, octaveMask, lacunarityMask);
 
-        return new SelectNoiseModule(fractalPlaineGenerator, fractalMountainsGenerator, maskGenerator, SelectInterpType.SineInOut, 0.5f, 0.0f, 4);
+        PBSNoiseGenerator result = new SelectNoiseModule(fractalPlaineGenerator, fractalMountainsGenerator, maskGenerator, selectInterpType, falloffSelect, thresholdSelect, numStepsSelect);
+        //return result;
 
-        //return scaleMaskGenerator;
+        PBSNoiseGenerator addGenerator = result + 1;
+        PBSNoiseGenerator scaleGenerator = new ScaleBiasNoiseModule(addGenerator, 0.5f, 0.0f);
+
+        return scaleGenerator;
     }
 }

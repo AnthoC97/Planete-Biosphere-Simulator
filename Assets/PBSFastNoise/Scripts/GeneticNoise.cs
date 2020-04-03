@@ -7,34 +7,39 @@ using System.Linq;
 
 public class GeneticNoise : MonoBehaviour
 {
-    [Min(0.5f)]
-    public float interval = 1;
-
-    public int populationSize = 10;
-
     public bool debug = false;
 
+    [Min(0.5f)]
+    public float interval = 1;
+    public int populationSize = 10;
+
+    Planet planet;
     PBSNoiseScript noiseScript;
     List<FieldInfo> fields;
 
-    List<List<IntGenetic>> solutions;
+    List<List<GeneticValue>> solutions;
     List<float> notes;
 
-    List<IntGenetic> bestSolution;
+    PBSNoiseGenerator bestNoiseGenerator;
+    List<GeneticValue> bestSolution;
     float bestScore = Mathf.NegativeInfinity;
 
     public int sectorCount = 5;
     public int stackCount = 5;
 
+    public float minElevation = 5000;
+    public float maxElevation = -5000;
+
     void Start()
     {
-        noiseScript = GetComponent<CustomNoiseScript>();
+        planet = GetComponent<Planet>();
+        noiseScript = GetComponent<PBSNoiseScript>();
         if (!noiseScript) return;
 
         //Recupération de l'objet System.Type représentant le type sous-jacent de l'objet
         Type objectType = noiseScript.GetType();
 
-        solutions = new List<List<IntGenetic>>();
+        solutions = new List<List<GeneticValue>>();
         notes = new List<float>();
 
         StartCoroutine(RunAlgoGenetic());
@@ -50,7 +55,6 @@ public class GeneticNoise : MonoBehaviour
             for (int i = 0; i < solutions.Count; ++i)
             {
                 notes.Add(Evaluate(i));
-                yield return new WaitForSeconds(0.1f);
             }
             if (EndCriteria())
             {
@@ -58,24 +62,25 @@ public class GeneticNoise : MonoBehaviour
             }
             else
             {
-                List<List<IntGenetic>> selections = Selector();
+                List<List<GeneticValue>> selections = Selector();
                 solutions.Clear();
+                solutions.AddRange(selections);
                 notes.Clear();
-                foreach(List<IntGenetic> solution1 in selections)
+                for(int i=0; i< selections.Count; ++i)
                 {
-                    foreach(List<IntGenetic> solution2 in selections)
+                    for (int j = 0; j < selections.Count; ++j)
                     {
-                        if (solution1 == solution2) continue;
-                        solutions.Add(MutationOperator(CrossOperator(solution1, solution2)));
+                        if (i == j) continue;
+                        solutions.Add(MutationOperator(CrossOperator(solutions[i], solutions[j])));
                     }
                 }
             }
         }
     }
 
-    List<IntGenetic> Generate()
+    List<GeneticValue> Generate()
     {
-        List<IntGenetic> solution = new List<IntGenetic>();
+        List<GeneticValue> solution = new List<GeneticValue>();
         foreach(FieldInfo fieldInfo in noiseScript.GetType().GetFields())
         {
             if(fieldInfo.FieldType == typeof(int))
@@ -92,22 +97,41 @@ public class GeneticNoise : MonoBehaviour
                     }
                 }
             }
+            else if (fieldInfo.FieldType == typeof(float))
+            {
+                foreach (Attribute attribute in fieldInfo.GetCustomAttributes())
+                {
+                    switch (attribute)
+                    {
+                        case RangeAttribute ra:
+                            float min = Mathf.RoundToInt(ra.min);
+                            float max = Mathf.RoundToInt(ra.max);
+                            solution.Add(new FloatGenetic(UnityEngine.Random.Range(min, max), min, max, fieldInfo.Name));
+                            break;
+                    }
+                }
+            }
+            else if(fieldInfo.FieldType.IsEnum)
+            {
+                int max = fieldInfo.FieldType.GetEnumValues().Length-1;
+                solution.Add(new EnumGenetic(UnityEngine.Random.Range(0, max), 0, max, fieldInfo.Name));
+            }
         }
         return solution;
     }
 
     float Evaluate(int index)
     {
-        List<IntGenetic> solution = solutions[index];
+        List<GeneticValue> solution = solutions[index];
         float maxBelow = 0.2f;
         float percentage = 0.5f;
         List<float> below = new List<float>();
         List<float> above = new List<float>();
 
         // Apply solution
-        foreach(IntGenetic intGenetic in solution)
+        foreach(GeneticValue geneticVal in solution)
         {
-            intGenetic.ApplyValue(noiseScript);
+            geneticVal.ApplyValue(noiseScript);
         }
 
         float x, y, z, xy;                              // vertex position
@@ -135,6 +159,8 @@ public class GeneticNoise : MonoBehaviour
                 Vector3 pos = new Vector3(x, z, y);
 
                 float elevation = noiseScript.GetNoiseGenerator().GetNoise3D(pos);
+                if (maxElevation < elevation) maxElevation = elevation;
+                if (minElevation > elevation) minElevation = elevation;
                 if (elevation <= maxBelow) below.Add(elevation);
                 else above.Add(elevation);
             }
@@ -146,8 +172,9 @@ public class GeneticNoise : MonoBehaviour
         {
             bestScore = score;
             bestSolution = solution;
+            bestNoiseGenerator = noiseScript.GetNoiseGenerator();
             print("new best score: "+ bestScore);
-            GetComponent<Planet>().UpdateNoiseGenerator(noiseScript.GetNoiseGenerator());
+            planet.UpdateNoiseGenerator(bestNoiseGenerator);
         }
 
         return score;
@@ -155,13 +182,13 @@ public class GeneticNoise : MonoBehaviour
 
     bool EndCriteria()
     {
-        return bestScore >= 0.8;
+        return bestScore >= 0.95;
     }
 
-    List<List<IntGenetic>> Selector()
+    List<List<GeneticValue>> Selector()
     {
         int nBest = 8;
-        List<List<IntGenetic>> selections = new List<List<IntGenetic>>();
+        List<List<GeneticValue>> selections = new List<List<GeneticValue>>();
 
         for(int i=0; i<nBest; ++i)
         {
@@ -175,23 +202,26 @@ public class GeneticNoise : MonoBehaviour
         return selections;
     }
 
-    List<IntGenetic> CrossOperator(List<IntGenetic> solution1, List<IntGenetic> solution2)
+    List<GeneticValue> CrossOperator(List<GeneticValue> solution1, List<GeneticValue> solution2)
     {
         return solution1;
     }
 
-    List<IntGenetic> MutationOperator(List<IntGenetic> solution)
+    List<GeneticValue> MutationOperator(List<GeneticValue> solution)
     {
         float probaMutation = 0.2f;
         if (probaMutation > 0.2f) return solution;
         int randIndex = UnityEngine.Random.Range(0, solution.Count - 1);
-        solution[randIndex].SetValue(UnityEngine.Random.Range(solution[randIndex].min, solution[randIndex].max));
+        solution[randIndex].SetValue(solution[randIndex].GetRandomValue());
         return solution;
     }
 
     private void OnDrawGizmos()
     {
         if (!debug) return;
+
+        if (bestNoiseGenerator == null) return;
+
         Gizmos.color = Color.green;
         float x, y, z, xy;                              // vertex position
 
@@ -214,17 +244,36 @@ public class GeneticNoise : MonoBehaviour
                 // vertex position (x, y, z)
                 x = xy * Mathf.Cos(sectorAngle);             // r * cos(u) * cos(v)
                 y = xy * Mathf.Sin(sectorAngle);             // r * cos(u) * sin(v)
-          
-                Gizmos.DrawWireSphere(new Vector3(x, z, y),0.1f);
+
+                Vector3 pos = new Vector3(x, z, y);
+                float elevation = bestNoiseGenerator.GetNoise3D(pos);
+                Gizmos.DrawWireSphere(pos * (1 + elevation) * planet.radius, 1.0f);
             }
         }
     }
 }
 
-public class IntGenetic
+public abstract class GeneticValue
+{
+    protected string name;
+
+    public virtual void ApplyValue(PBSNoiseScript noiseScript)
+    {
+    }
+
+    public virtual void SetValue(object v)
+    {
+    }
+
+    public virtual object GetRandomValue()
+    {
+        return null;
+    }
+}
+
+public class IntGenetic : GeneticValue
 {
     public int value, min, max;
-    string name;
 
     public IntGenetic(int value, int min, int max, string name)
     {
@@ -234,13 +283,74 @@ public class IntGenetic
         this.name = name;
     }
 
-    public void ApplyValue(PBSNoiseScript noiseScript)
+    public override void ApplyValue(PBSNoiseScript noiseScript)
     {
         noiseScript.GetType().GetField(name).SetValue(noiseScript, value);
     }
 
-    public void SetValue(int v)
+    public override void SetValue(object v)
     {
-        value = v;
+        value = (int)v;
+    }
+
+    public override object GetRandomValue()
+    {
+        return UnityEngine.Random.Range(min, max);
+    }
+}
+
+public class FloatGenetic : GeneticValue
+{
+    public float value, min, max;
+
+    public FloatGenetic(float value, float min, float max, string name)
+    {
+        this.value = value;
+        this.min = min;
+        this.max = max;
+        this.name = name;
+    }
+
+    public override void ApplyValue(PBSNoiseScript noiseScript)
+    {
+        noiseScript.GetType().GetField(name).SetValue(noiseScript, value);
+    }
+
+    public override void SetValue(object v)
+    {
+        value = (float)v;
+    }
+
+    public override object GetRandomValue()
+    {
+        return UnityEngine.Random.Range(min, max);
+    }
+}
+
+public class EnumGenetic : GeneticValue
+{
+    public int value, min, max;
+
+    public EnumGenetic(int value, int min, int max, string name)
+    {
+        this.value = value;
+        this.min = min;
+        this.max = max;
+        this.name = name;
+    }
+
+    public override void ApplyValue(PBSNoiseScript noiseScript)
+    {
+        noiseScript.GetType().GetField(name).SetValue(noiseScript, value);
+    }
+
+    public override void SetValue(object v)
+    {
+        value = (int)v;
+    }
+
+    public override object GetRandomValue()
+    {
+        return UnityEngine.Random.Range(min, max);
     }
 }

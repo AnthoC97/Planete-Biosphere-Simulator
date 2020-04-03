@@ -329,6 +329,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 0
+  material: {fileID: 2100000, guid: bf703e7ed18d3a5499473cfc4dcbaf80, type: 2}
   meshFilters:
   - {fileID: 0}
   - {fileID: 0}
@@ -338,7 +339,7 @@ MonoBehaviour:
   - {fileID: 0}
   radius: 200
   cameraTransform: {fileID: 0}
-  cullingMinAngle: 1.5
+  cullingMinAngle: 0
   lodThreshold: 1
   intervalUpdateLOD: 0.5
   lods:

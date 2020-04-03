@@ -17,6 +17,8 @@ public class Planet : MonoBehaviour
 {
     public bool debug = false;
 
+    public Material material;
+
     [SerializeField, HideInInspector]
     MeshFilter[] meshFilters;
     TerrainFace[] terrainFaces;
@@ -33,13 +35,6 @@ public class Planet : MonoBehaviour
     [Min(0.1f)]
     public float intervalUpdateLOD = 0.5f;
     public LODConfig[] lods;
-
-
-    /*private void OnValidate()
-    {
-        Initialize();
-        GenerateMesh();
-    }*/
 
     private void Awake()
     {
@@ -90,7 +85,7 @@ public class Planet : MonoBehaviour
             {
                 GameObject meshObj = new GameObject("mesh");
                 meshObj.transform.parent = transform;
-                meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+                meshObj.AddComponent<MeshRenderer>().sharedMaterial = material;
                 meshFilters[i] = meshObj.AddComponent<MeshFilter>();
                 meshFilters[i].sharedMesh = new Mesh();
             }

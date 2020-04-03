@@ -94,7 +94,7 @@ public class CustomNoiseScript : PBSNoiseScript
         return scaleModule;*/
         PBSNoiseGenerator fractalPlaineGenerator = new FractalNoiseGenerator(fractalNoiseTypePlains, seedPlains, frequencyPlains, fractalGainPlains, interpPlains, fractalTypePlains, octavePlains, lacunarityPlains);
 
-        PBSNoiseGenerator fractalMountainsGenerator = new FractalNoiseGenerator(fractalNoiseTypeMountains, seedMountains, frequencyMountains, fractalGainMountains, interpMountains, fractalTypeMountains, octaveMountains, lacunarityMountains);;
+        PBSNoiseGenerator fractalMountainsGenerator = new FractalNoiseGenerator(fractalNoiseTypeMountains, seedMountains, frequencyMountains, fractalGainMountains, interpMountains, fractalTypeMountains, octaveMountains, lacunarityMountains);
         //PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(fractalMountainsGenerator, 100.0f, 0.1f);
         //return scaleBiasGenerator;
 

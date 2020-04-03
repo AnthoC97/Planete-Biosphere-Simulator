@@ -20,6 +20,7 @@ public class TerrainFace
     public List<Vector3> borderVertices = new List<Vector3>();
     public List<int> borderTriangles = new List<int>();
     public Dictionary<int, bool> edgefanIndex = new Dictionary<int, bool>();
+    public List<Color> colors = new List<Color>();
 
     public TerrainFace(Mesh mesh, Vector3 localUp, Planet planet)
     {
@@ -43,6 +44,7 @@ public class TerrainFace
         borderVertices.Clear();
         borderTriangles.Clear();
         visibleChildren.Clear();
+        colors.Clear();
 
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // Extend the resolution capabilities of the mesh
 
@@ -57,7 +59,7 @@ public class TerrainFace
         foreach (Chunk child in visibleChildren)
         {
             child.GetNeighbourLOD();
-            (Vector3[], int[], int[], Vector3[], Vector3[]) verticesAndTriangles = child.CalculateVerticesAndTriangles(triangleOffset, borderTriangleOffset);
+            (Vector3[], int[], int[], Vector3[], Vector3[], Color[]) verticesAndTriangles = child.CalculateVerticesAndTriangles(triangleOffset, borderTriangleOffset);
 
             vertices.AddRange(verticesAndTriangles.Item1);
             triangles.AddRange(verticesAndTriangles.Item2);
@@ -66,6 +68,7 @@ public class TerrainFace
             normals.AddRange(verticesAndTriangles.Item5);
             triangleOffset += verticesAndTriangles.Item1.Length;
             borderTriangleOffset += verticesAndTriangles.Item4.Length;
+            colors.AddRange(verticesAndTriangles.Item6);
         }
 
         // Reset mesh and apply new data
@@ -73,6 +76,7 @@ public class TerrainFace
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.normals = normals.ToArray();
+        mesh.colors = colors.ToArray();
     }
 
     public void UpdateTree()
@@ -85,6 +89,7 @@ public class TerrainFace
         borderTriangles.Clear();
         visibleChildren.Clear();
         edgefanIndex.Clear();
+        colors.Clear();
 
         // Update chunks
         parentChunk.UpdateChunk();
@@ -96,7 +101,7 @@ public class TerrainFace
         foreach (Chunk child in visibleChildren)
         {
             child.GetNeighbourLOD();
-            (Vector3[], int[], int[], Vector3[], Vector3[]) verticesAndTriangles = (new Vector3[0], new int[0], new int[0], new Vector3[0], new Vector3[0]);
+            (Vector3[], int[], int[], Vector3[], Vector3[], Color[]) verticesAndTriangles = (new Vector3[0], new int[0], new int[0], new Vector3[0], new Vector3[0], new Color[0]);
             if (child.vertices == null)
             {
                 verticesAndTriangles = child.CalculateVerticesAndTriangles(triangleOffset, borderTriangleOffset);
@@ -107,7 +112,7 @@ public class TerrainFace
             }
             else
             {
-                verticesAndTriangles = (child.vertices, child.GetTrianglesWithOffset(triangleOffset), child.GetBorderTrianglesWithOffset(borderTriangleOffset, triangleOffset), child.borderVertices, child.normals);
+                verticesAndTriangles = (child.vertices, child.GetTrianglesWithOffset(triangleOffset), child.GetBorderTrianglesWithOffset(borderTriangleOffset, triangleOffset), child.borderVertices, child.normals, child.colors);
             }
 
             vertices.AddRange(verticesAndTriangles.Item1);
@@ -115,6 +120,7 @@ public class TerrainFace
             borderTriangles.AddRange(verticesAndTriangles.Item3);
             borderVertices.AddRange(verticesAndTriangles.Item4);
             normals.AddRange(verticesAndTriangles.Item5);
+            colors.AddRange(verticesAndTriangles.Item6);
 
             // Increase offset to accurately point to the next slot in the lists
             triangleOffset += (EdgeFansPresets.quadRes + 1) * (EdgeFansPresets.quadRes + 1);
@@ -141,6 +147,7 @@ public class TerrainFace
         mesh.triangles = triangles.ToArray();
         mesh.normals = normals.ToArray();
         mesh.uv = uvs;
+        mesh.colors = colors.ToArray();
     }
 
     public Chunk[] GetVisibleChunks()
@@ -174,6 +181,7 @@ public class Chunk
     public int[] triangles;
     public int[] borderTriangles;
     public Vector3[] normals;
+    public Color[] colors;
 
     public byte[] neighbours = new byte[4]; //East, west, north, south. True if less detailed (Lower LOD)
 
@@ -191,7 +199,7 @@ public class Chunk
         this.axisB = axisB;
         this.neighbours = neighbours;
         this.corner = corner;
-        this.normalizedPos = position.normalized;
+        normalizedPos = position.normalized;
     }
 
     public void GenerateChildren()
@@ -385,7 +393,7 @@ public class Chunk
         return newBorderTriangles;
     }
 
-    public (Vector3[], int[], int[], Vector3[], Vector3[]) CalculateVerticesAndTriangles(int triangleOffset, int borderTriangleOffset)
+    public (Vector3[], int[], int[], Vector3[], Vector3[], Color[]) CalculateVerticesAndTriangles(int triangleOffset, int borderTriangleOffset)
     {
         Matrix4x4 transformMatrix;
         Vector3 rotationMatrixAttrib = new Vector3(0, 0, 0);
@@ -425,6 +433,7 @@ public class Chunk
 
         // Choose a quad from the templates, then move it using the transform matrix, normalize its vertices, scale it and store it
         vertices = new Vector3[(EdgeFansPresets.quadRes + 1) * (EdgeFansPresets.quadRes + 1)];
+        colors = new Color[vertices.Length];
 
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -433,6 +442,7 @@ public class Chunk
             float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere);
             //vertices[i] = pointOnUnitSphere * (planet.radius + elevation);
             vertices[i] = pointOnUnitSphere *(1+elevation)* planet.radius;
+            colors[i] = Color.Lerp(Color.red, Color.green, elevation);
         }
 
         // Do the same for the border vertices
@@ -530,7 +540,7 @@ public class Chunk
             normals[i].Normalize();
         }
 
-        return (vertices, GetTrianglesWithOffset(triangleOffset), GetBorderTrianglesWithOffset(borderTriangleOffset, triangleOffset), borderVertices, normals);
+        return (vertices, GetTrianglesWithOffset(triangleOffset), GetBorderTrianglesWithOffset(borderTriangleOffset, triangleOffset), borderVertices, normals, colors);
     }
 
     private Vector3 SurfaceNormalFromIndices(int indexA, int indexB, int indexC)

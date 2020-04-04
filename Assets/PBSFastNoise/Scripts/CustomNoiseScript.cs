@@ -8,7 +8,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 999999)]
     public int seedPlains;
 
-    [Range(0, 2)]
+    [Range(0, 10)]
     public float frequencyPlains;
 
     [Range(0f, 0f)]
@@ -24,10 +24,10 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 10)]
     public int seedMountains;
 
-    [Range(0, 2)]
+    [Range(0, 10)]
     public float frequencyMountains;
 
-    [Range(0f, 0f)]
+    [Range(0f, 2f)]
     public float fractalGainMountains;
 
     [Range(0, 20)]
@@ -40,10 +40,10 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 999999)]
     public int seedMask;
 
-    [Range(0, 2)]
+    [Range(0, 10)]
     public float frequencyMask;
 
-    [Range(0f, 0f)]
+    [Range(0f, 2)]
     public float fractalGainMask;
 
     [Range(0, 20)]

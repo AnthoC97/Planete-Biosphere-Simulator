@@ -127,6 +127,7 @@ public class GeneticNoise : MonoBehaviour
         float percentage = 0.5f;
         List<float> below = new List<float>();
         List<float> above = new List<float>();
+        float score = 0;
 
         // Apply solution
         foreach(GeneticValue geneticVal in solution)
@@ -159,15 +160,18 @@ public class GeneticNoise : MonoBehaviour
                 Vector3 pos = new Vector3(x, z, y);
 
                 float elevation = noiseScript.GetNoiseGenerator().GetNoise3D(pos);
-                if (maxElevation < elevation) maxElevation = elevation;
+                if (float.IsNaN(elevation) || float.IsInfinity(elevation)) score += -9999999;
+                /*if (maxElevation < elevation) maxElevation = elevation;
                 if (minElevation > elevation) minElevation = elevation;
                 if (elevation <= maxBelow) below.Add(elevation);
-                else above.Add(elevation);
+                else above.Add(elevation);*/
+                if (elevation == 0) ++score;
             }
         }
 
-        float percent = (float)below.Count/(below.Count + above.Count);
-        float score = 1 - Mathf.Abs(percentage - percent);
+        /*float percent = (float)below.Count/(below.Count + above.Count);
+        float score = 1 - Mathf.Abs(percentage - percent);*/
+        score = score/((stackCount + 1) * (sectorCount + 1));
         if(score > bestScore)
         {
             bestScore = score;
@@ -182,7 +186,7 @@ public class GeneticNoise : MonoBehaviour
 
     bool EndCriteria()
     {
-        return bestScore >= 0.95;
+        return bestScore >= 1;//0.95;
     }
 
     List<List<GeneticValue>> Selector()
@@ -210,7 +214,7 @@ public class GeneticNoise : MonoBehaviour
     List<GeneticValue> MutationOperator(List<GeneticValue> solution)
     {
         float probaMutation = 0.2f;
-        if (probaMutation > 0.2f) return solution;
+        if (probaMutation > UnityEngine.Random.value) return solution;
         int randIndex = UnityEngine.Random.Range(0, solution.Count - 1);
         solution[randIndex].SetValue(solution[randIndex].GetRandomValue());
         return solution;
@@ -247,6 +251,8 @@ public class GeneticNoise : MonoBehaviour
 
                 Vector3 pos = new Vector3(x, z, y);
                 float elevation = bestNoiseGenerator.GetNoise3D(pos);
+                elevation = Mathf.Clamp(elevation, 0, 1);
+                if (float.IsNaN(elevation)) elevation = 0;
                 Gizmos.DrawWireSphere(pos * (1 + elevation) * planet.radius, 1.0f);
             }
         }

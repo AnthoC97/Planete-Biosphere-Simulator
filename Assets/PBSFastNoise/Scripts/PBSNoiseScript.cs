@@ -23,8 +23,8 @@ public class PBSNoiseScript : MonoBehaviour
         return new PBSNoiseGenerator();
     }
 
-    public virtual Color GetColor()
+    public virtual Color GetColor(Vector3 pointOnUnitSphere)
     {
-        return Color.clear;
+        return Color.white;
     }
 }

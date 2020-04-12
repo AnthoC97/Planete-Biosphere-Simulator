@@ -24,6 +24,8 @@ public class Planet : MonoBehaviour
     TerrainFace[] terrainFaces;
 
     [HideInInspector]
+    public PBSNoiseScript pbsNoiseScript;
+    [HideInInspector]
     public PBSNoiseGenerator noiseGenerator;
 
     public float radius = 10;
@@ -40,7 +42,7 @@ public class Planet : MonoBehaviour
     {
         cameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
         lastCameraPosition = cameraTransform.position;
-        PBSNoiseScript pbsNoiseScript = GetComponent<PBSNoiseScript>();
+        pbsNoiseScript = GetComponent<PBSNoiseScript>();
         if (pbsNoiseScript)
             noiseGenerator = pbsNoiseScript.GetNoiseGenerator();
         else

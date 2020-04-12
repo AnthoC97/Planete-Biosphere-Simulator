@@ -11,7 +11,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 10)]
     public float frequencyPlains;
 
-    [Range(0f, 0f)]
+    [Range(0f, 2)]
     public float fractalGainPlains;
 
     [Range(0, 20)]
@@ -27,7 +27,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 10)]
     public float frequencyMountains;
 
-    [Range(0f, 2f)]
+    [Range(0, 2)]
     public float fractalGainMountains;
 
     [Range(0, 20)]
@@ -43,7 +43,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 10)]
     public float frequencyMask;
 
-    [Range(0f, 2)]
+    [Range(0, 2)]
     public float fractalGainMask;
 
     [Range(0, 20)]
@@ -53,10 +53,10 @@ public class CustomNoiseScript : PBSNoiseScript
     public float lacunarityMask;
 
 
-    [Range(0.5f, 0.5f)]
+    [Range(0, 1)]
     public float falloffSelect;
 
-    [Range(0, 0)]
+    [Range(-1, 1)]
     public float thresholdSelect;
 
     [Range(0, 4)]
@@ -107,5 +107,14 @@ public class CustomNoiseScript : PBSNoiseScript
         PBSNoiseGenerator scaleGenerator = new ScaleBiasNoiseModule(addGenerator, 0.5f, 0.0f);
 
         return scaleGenerator;
+    }
+
+    public Gradient gradient = new Gradient();
+
+    public override Color GetColor(Vector3 pointOnUnitSphere) 
+    {
+        float elevation = GetNoiseGenerator().GetNoise3D(pointOnUnitSphere);
+        //return Color.Lerp(Color.red, Color.green, elevation);
+        return gradient.Evaluate(elevation);
     }
 }

@@ -442,7 +442,8 @@ public class Chunk
             float elevation = planet.noiseGenerator.GetNoise3D(pointOnUnitSphere);
             //vertices[i] = pointOnUnitSphere * (planet.radius + elevation);
             vertices[i] = pointOnUnitSphere *(1+elevation)* planet.radius;
-            colors[i] = Color.Lerp(Color.red, Color.green, elevation);
+            //colors[i] = Color.Lerp(Color.red, Color.green, elevation);
+            colors[i] = planet.pbsNoiseScript.GetColor(pointOnUnitSphere);
         }
 
         // Do the same for the border vertices

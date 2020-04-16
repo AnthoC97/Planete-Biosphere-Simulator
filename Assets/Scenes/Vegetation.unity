@@ -235,6 +235,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   g1: {fileID: 11400000, guid: 85460ce886fd292439bbf5804c7568a1, type: 2}
   go: {fileID: 0}
+  trunck_height: 2
+  base_radius: 0.2
+  deltaAngle: 15
+  base_angle: 30
 --- !u!4 &1066155760
 Transform:
   m_ObjectHideFlags: 0

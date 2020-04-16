@@ -6,16 +6,15 @@ public class MeshGenerator : MonoBehaviour
 {
     public Grammar g1;
     public GameObject go;
+    public float trunck_height = 1f;
+    public float base_radius = 0.2f;
+    public int deltaAngle = 15;
+    public float base_angle = 30f;
 
     public void Start()
     {
-        string word = GenerateWord(3);
-
-        //Circle circle = new Circle(new Vector3(1.0f, 0.0f, 0.0f), 0.2f, 15);
-        //circle.CreateCircle();
-        //DrawMesh("test", circle.vertices, circle.uvs, circle.triangles, Quaternion.identity);
-
-        WordToTree(go, word);
+        string word = GenerateWord(g1, 3);
+        WordToTree(word);
     }
 
     // Update is called once per frame
@@ -24,19 +23,19 @@ public class MeshGenerator : MonoBehaviour
         
     }
 
-    public string GenerateWord(int iterations)
+    public string GenerateWord(Grammar g,int iterations)
     {
-        string word = g1.axiom;
+        string word = g.axiom;
         for(int i = 0; i < iterations; i++)
         {
             string tmp = "";
             foreach(char c in word)
             {
                 int j = 0;
-                foreach (char symboml in g1.V)
+                foreach (char symboml in g.V)
                 {
                     if (symboml == c)
-                        tmp += g1.P[j];
+                        tmp += g.P[j];
                     j++;
                 }
                 if(c == '+' || c == '-' || c == '[' || c == ']')
@@ -49,29 +48,8 @@ public class MeshGenerator : MonoBehaviour
         }
         return word;
     }
-    //public string GenerateWord(int iterations)
-    //{
-    //    string word = g1.axiom;
-    //    for(int i = 0; i < iterations; i++)
-    //    {
-    //        string tmp = "";
-    //        foreach(char c in word)
-    //        {
-    //            int j = 0;
-    //            foreach (char symboml in g1.V)
-    //            {
-    //                if (symboml == c)
-    //                    tmp += g1.P[j];
-    //                j++;
-    //            }
-    //        }
-    //        //Debug.Log(tmp);
-    //        word = tmp;
-    //    }
-    //    return word;
-    //}
 
-    public void WordToTree(GameObject go, string word)
+    public void WordToTree(string word)
     {
         Debug.Log(word);
         Vector3 pivot = Vector3.zero;
@@ -85,10 +63,10 @@ public class MeshGenerator : MonoBehaviour
             Debug.Log("i : " + i + ", pivot : " + pivot);
             if (c == 'F')
             {
-                Cylinder cylinder = new Cylinder(pivot, 0.2f, 1f, 15);
+                Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height, deltaAngle);
                 cylinder.CreateCylinder();
                 DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(0, 0, angle), pivot);
-                pivot += Quaternion.Euler(0, 0, angle) * new Vector3(0,1f, 0);
+                pivot += Quaternion.Euler(0, 0, angle) * new Vector3(0,trunck_height, 0);
                 ++i;
             }
             else if (c == '[')
@@ -103,11 +81,11 @@ public class MeshGenerator : MonoBehaviour
             }
             else if(c == '+')
             {
-                angle += 30;
+                angle += base_angle;
             }
             else if(c == '-')
             {
-                angle += -30;
+                angle += -base_angle;
             }
         }
     }

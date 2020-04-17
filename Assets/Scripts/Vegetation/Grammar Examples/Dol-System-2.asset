@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3011bf84948ffc741adabe7fee99e4ff, type: 3}
-  m_Name: Grammar
+  m_Name: Dol-System-2
   m_EditorClassIdentifier: 
-  V: 41004200
-  S: 
-  axiom: AB
+  V: 4600
+  S: 2b002d00
+  axiom: F
   P:
-  - AB
-  - BA
+  - FF+[+F-F-F]-[-F+F+F]

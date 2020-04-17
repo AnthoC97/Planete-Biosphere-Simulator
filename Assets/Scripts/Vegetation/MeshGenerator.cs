@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
 {
-    public Grammar g1;
+    public DeterministicGrammar g1;
+    public StochasticGrammar g2;
     public GameObject go;
     public float trunck_height = 1f;
     public float base_radius = 0.2f;
@@ -14,7 +15,15 @@ public class MeshGenerator : MonoBehaviour
     public void Start()
     {
         string word = GenerateWord(g1, 3);
-        WordToTree(word);
+        //WordToTree(word, Vector3.zero);
+        word = GenerateWord(g2, 3);
+        WordToTree(word, Vector3.zero);
+        //for (int i = 0; i < 50; i++)
+        //{
+        //    float x = Random.Range(-28, 28);
+        //    float z = Random.Range(-28, 28);
+        //    WordToTree(word, new Vector3(x, 0, z));
+        //}
     }
 
     // Update is called once per frame
@@ -23,7 +32,7 @@ public class MeshGenerator : MonoBehaviour
         
     }
 
-    public string GenerateWord(Grammar g,int iterations)
+    public string GenerateWord(DeterministicGrammar g,int iterations)
     {
         string word = g.axiom;
         for(int i = 0; i < iterations; i++)
@@ -49,24 +58,62 @@ public class MeshGenerator : MonoBehaviour
         return word;
     }
 
-    public void WordToTree(string word)
+    public string GenerateWord(StochasticGrammar g,int iterations)
+    {
+        string word = g.axiom;
+        int prob = 0;
+        for(int i = 0; i < iterations; i++)
+        {
+            string tmp = "";
+            foreach(char c in word)
+            {
+                int j = 0;
+                for(int k = 0; k < g.V_Keys.Count; k++)
+                {
+                    if(g.V_Keys[k] == c)
+                    {
+                        prob = Random.Range(0, g.V_Values[k] - 1);
+                        tmp += g.P[j + prob];
+                    }
+                    j += g.V_Values[k];
+                }
+                if(c == '+' || c == '-' || c == '[' || c == ']')
+                {
+                    tmp += c;
+                }
+            }
+            //Debug.Log(tmp);
+            word = tmp;
+        }
+        return word;
+    }
+
+    public void WordToTree(string word, Vector3 pos)
     {
         Debug.Log(word);
-        Vector3 pivot = Vector3.zero;
+        Vector3 pivot = pos;
         Stack<Vector3> vectors_stack = new Stack<Vector3>();
         Stack<float> angles_stack = new Stack<float>();
-        bool sub = false;
         float angle = 0;
         int i = 0;
         foreach (char c in word)
         {
-            Debug.Log("i : " + i + ", pivot : " + pivot);
+            //Debug.Log("i : " + i + ", pivot : " + pivot);
             if (c == 'F')
             {
                 Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height, deltaAngle);
                 cylinder.CreateCylinder();
                 DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(0, 0, angle), pivot);
                 pivot += Quaternion.Euler(0, 0, angle) * new Vector3(0,trunck_height, 0);
+                ++i;
+            }
+            else if(c == 'B')
+            {
+                Debug.Log("OK");
+                Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height*1.5f, deltaAngle);
+                cylinder.CreateCylinder();
+                DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(0, 0, angle), pivot);
+                pivot += Quaternion.Euler(0, 0, angle) * new Vector3(0, trunck_height*1.5f, 0);
                 ++i;
             }
             else if (c == '[')

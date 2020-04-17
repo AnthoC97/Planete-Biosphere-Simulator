@@ -6,7 +6,7 @@ public class MeshGenerator : MonoBehaviour
 {
     public DeterministicGrammar g1;
     public StochasticGrammar g2;
-    public GameObject go;
+    public DeterministicGrammar g3;
     public float trunck_height = 1f;
     public float base_radius = 0.2f;
     public int deltaAngle = 15;
@@ -14,10 +14,12 @@ public class MeshGenerator : MonoBehaviour
 
     public void Start()
     {
-        string word = GenerateWord(g1, 3);
+        //string word = GenerateWord(g1, 3);
         //WordToTree(word, Vector3.zero);
-        word = GenerateWord(g2, 3);
-        WordToTree(word, Vector3.zero);
+        string word = GenerateWord(g2, 3);
+        WordTo2DTree(word, new Vector3(5, 0, 5));
+        word = GenerateWord(g3, 3);
+        WordTo3DTree(word, Vector3.zero);
         //for (int i = 0; i < 50; i++)
         //{
         //    float x = Random.Range(-28, 28);
@@ -37,6 +39,7 @@ public class MeshGenerator : MonoBehaviour
         string word = g.axiom;
         for(int i = 0; i < iterations; i++)
         {
+            Debug.Log(i);
             string tmp = "";
             foreach(char c in word)
             {
@@ -45,6 +48,7 @@ public class MeshGenerator : MonoBehaviour
                 {
                     if (symboml == c)
                         tmp += g.P[j];
+                    Debug.Log(symboml);
                     j++;
                 }
                 if(c == '+' || c == '-' || c == '[' || c == ']')
@@ -88,7 +92,7 @@ public class MeshGenerator : MonoBehaviour
         return word;
     }
 
-    public void WordToTree(string word, Vector3 pos)
+    public void WordTo2DTree(string word, Vector3 pos)
     {
         Debug.Log(word);
         Vector3 pivot = pos;
@@ -133,6 +137,88 @@ public class MeshGenerator : MonoBehaviour
             else if(c == '-')
             {
                 angle += -base_angle;
+            }
+        }
+    }
+    public void WordTo3DTree(string word, Vector3 pos)
+    {
+        Debug.Log(word);
+        Vector3 pivot = pos;
+        Stack<Vector3> vectors_stack = new Stack<Vector3>();
+        Stack<Vector3> angles_stack = new Stack<Vector3>();
+        float u_angle = 0;
+        float h_angle = 0;
+        float l_angle = 0;
+        int i = 0;
+        foreach (char c in word)
+        {
+            //Debug.Log("i : " + i + ", pivot : " + pivot);
+            if (c == 'F')
+            {
+                Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height, deltaAngle);
+                cylinder.CreateCylinder();
+                DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(l_angle, u_angle, h_angle), pivot);
+                pivot += Quaternion.Euler(l_angle, u_angle, h_angle) * new Vector3(pivot.x,trunck_height, pivot.z);
+                ++i;
+            }
+            else if(c == 'B')
+            {
+                Debug.Log("OK");
+                Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height*1.5f, deltaAngle);
+                cylinder.CreateCylinder();
+                DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(l_angle, u_angle, h_angle), pivot);
+                pivot += Quaternion.Euler(l_angle, u_angle, h_angle) * new Vector3(pivot.x, trunck_height, pivot.z);
+                ++i;
+            }
+            else if(c == 'S')
+            {
+                Debug.Log("OK");
+                Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height*0.5f, deltaAngle);
+                cylinder.CreateCylinder();
+                DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(l_angle, u_angle, h_angle), pivot);
+                pivot += Quaternion.Euler(l_angle, u_angle, h_angle) * new Vector3(pivot.x, trunck_height, pivot.z);
+                ++i;
+            }
+            else if (c == '[')
+            {
+                vectors_stack.Push(pivot);
+                angles_stack.Push(new Vector3(l_angle, u_angle, h_angle));
+            }
+            else if (c == ']')
+            {
+                pivot = vectors_stack.Pop();
+                Vector3 angles = angles_stack.Pop();
+                l_angle = angles.x;
+                u_angle = angles.y;
+                h_angle = angles.z;
+            }
+            else if(c == '+')
+            {
+                u_angle += base_angle;
+            }
+            else if(c == '-')
+            {
+                u_angle += -base_angle;
+            }
+            else if(c == '&')
+            {
+                l_angle += base_angle;
+            }
+            else if(c == '^')
+            {
+                l_angle -= base_angle;
+            }
+            else if(c == '\\')
+            {
+                h_angle += base_angle;
+            }
+            else if(c == '/')
+            {
+                h_angle -= base_angle;
+            }
+            else if(c == '|')
+            {
+                u_angle += 180;
             }
         }
     }

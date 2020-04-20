@@ -4,17 +4,17 @@ public class MoveAction : Action
 {
     private Vector3 destination;
     private GameObject actor;
+    private float speed;
 
-    public MoveAction(Vector3 destination, GameObject actor)
+    public MoveAction(Vector3 destination, GameObject actor, float speed)
     {
         this.destination = destination;
         this.actor = actor;
+        this.speed = speed;
     }
 
     public override (bool done, bool result) Execute()
     {
-        float speed = .5f;
-
         actor.transform.position =
             Vector3.MoveTowards(actor.transform.position, destination, speed);
 

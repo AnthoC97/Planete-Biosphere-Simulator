@@ -4,19 +4,39 @@ public class Simulation : MonoBehaviour
 {
     private const string entityTag = "SimulationEntity";
 
+    private Planet planet;
+    private PBSNoiseScript planetNoiseScript;
+
     private void Start()
     {
+        planet = GameObject.Find("Planet").GetComponent<Planet>();
+        planetNoiseScript = GameObject.Find("Planet").GetComponent<PBSNoiseScript>();
         GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
 
         foreach (GameObject entity in entities) {
+            Vector3 normalizedPosition = entity.transform.position.normalized;
+            entity.transform.position =
+                GetGroundPositionWithElevation(normalizedPosition, .5f);
+            Debug.Log(entity.transform.position);
+
             Entity entityActions = entity.GetComponent<Entity>();
 
             if (entityActions != null && !entityActions.HasActionsQueued()) {
                 Vector3 position = entity.transform.position;
-                position.x += 10;
-                entityActions.AddAction(new MoveAction(position, entity));
+                position.y += 10;
+                position =
+                    GetGroundPositionWithElevation(position.normalized, .5f);
+                entityActions.AddAction(new MoveAction(position, entity, .2f));
             }
         }
+    }
+
+    private Vector3 GetGroundPositionWithElevation(Vector3 normalizedPosition,
+            float addedElevation)
+    {
+        float elevation = planetNoiseScript
+            .GetNoiseGenerator().GetNoise3D(normalizedPosition);
+        return normalizedPosition * (1 + elevation) * planet.radius;
     }
 
     public void FixedUpdate()

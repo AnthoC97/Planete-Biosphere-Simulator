@@ -23,9 +23,11 @@ public class Simulation : MonoBehaviour
 
             if (entityActions != null && !entityActions.HasActionsQueued()) {
                 Vector3 position = entity.transform.position;
+                Debug.Log("Old position: " + position.ToString());
                 position.y += 10;
                 position =
                     GetGroundPositionWithElevation(position.normalized, .5f);
+                Debug.Log("Destination: " + position.ToString());
                 entityActions.AddAction(new MoveAction(position, entity, .2f));
             }
         }

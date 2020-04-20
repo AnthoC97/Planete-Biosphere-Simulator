@@ -199,7 +199,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 89445700}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -210.74}
+  m_LocalPosition: {x: 0, y: 1, z: -330}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -337,6 +337,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1388476920}
+  - component: {fileID: 1388476921}
   m_Layer: 0
   m_Name: Simulation
   m_TagString: Untagged
@@ -358,6 +359,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1388476921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388476919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 272b0752298b506a2932d47f925c10e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1583251942
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,24 +465,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebd9d716dfe799443bce6565ab571275, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seedPlains: 0
-  frequencyPlains: 0
-  fractalGainPlains: 0
-  octavePlains: 0
-  lacunarityPlains: 0
-  seedMountains: 0
-  frequencyMountains: 0
-  fractalGainMountains: 0
-  octaveMountains: 0
-  lacunarityMountains: 0
-  seedMask: 0
-  frequencyMask: 0
-  fractalGainMask: 0
-  octaveMask: 0
-  lacunarityMask: 0
-  falloffSelect: 0
+  seedPlains: 867309
+  frequencyPlains: 1.5
+  fractalGainPlains: 0.3
+  octavePlains: 3
+  lacunarityPlains: 1.56
+  seedMountains: 7
+  frequencyMountains: 2.04
+  fractalGainMountains: 0.14
+  octaveMountains: 2
+  lacunarityMountains: 1.44
+  seedMask: 107358
+  frequencyMask: 4.75
+  fractalGainMask: 0.23
+  octaveMask: 1
+  lacunarityMask: 1.13
+  falloffSelect: 0.107
   thresholdSelect: 0
-  numStepsSelect: 0
+  numStepsSelect: 1
   selectInterpType: 0
   fractalNoiseTypePlains: 0
   interpPlains: 0
@@ -516,7 +529,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1583251942}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65ec1a6e7c50cb449a59e008386a723a, type: 3}
   m_Name: 
@@ -540,9 +553,10 @@ GameObject:
   - component: {fileID: 1658712136}
   - component: {fileID: 1658712135}
   - component: {fileID: 1658712134}
+  - component: {fileID: 1658712138}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: SimulationEntity
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -615,9 +629,21 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1658712133}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.4707575, y: 20.800331, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1658712138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1658712133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74150e306b843b916962d283fd5bb142, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

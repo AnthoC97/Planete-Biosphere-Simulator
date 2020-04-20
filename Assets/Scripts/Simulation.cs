@@ -10,25 +10,20 @@ public class Simulation : MonoBehaviour
     private void Start()
     {
         planet = GameObject.Find("Planet").GetComponent<Planet>();
-        planetNoiseScript = GameObject.Find("Planet").GetComponent<PBSNoiseScript>();
+        planetNoiseScript =
+            GameObject.Find("Planet").GetComponent<PBSNoiseScript>();
         GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
 
         foreach (GameObject entity in entities) {
             Vector3 normalizedPosition = entity.transform.position.normalized;
             entity.transform.position =
                 GetGroundPositionWithElevation(normalizedPosition, .5f);
-            Debug.Log(entity.transform.position);
 
             Entity entityActions = entity.GetComponent<Entity>();
 
             if (entityActions != null && !entityActions.HasActionsQueued()) {
-                Vector3 position = entity.transform.position;
-                Debug.Log("Old position: " + position.ToString());
-                position.y += 10;
-                position =
-                    GetGroundPositionWithElevation(position.normalized, .5f);
-                Debug.Log("Destination: " + position.ToString());
-                entityActions.AddAction(new MoveAction(position, entity, .2f));
+                Vector3 movement = new Vector3(0, 10, 0);
+                MoveEntityRelative(entity, entityActions, movement);
             }
         }
     }

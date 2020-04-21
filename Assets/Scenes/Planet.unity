@@ -217,8 +217,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
@@ -248,8 +248,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2601d08cf0a02958ba45c472746a24c0, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   translation_speed: 10
   rotation_speed: 10
   cam_threshold_yaw: 0.3
@@ -266,17 +266,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e2a4a0da969097bea566c9ffa6739c5, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   target: {fileID: 1583251944}
-  distance: 300
+  distance: 350
   xSpeed: 1.2
   ySpeed: 120
   scrollSpeed: 20
   yMinLimit: -20
   yMaxLimit: 80
   distanceMin: 200
-  distanceMax: 400
+  distanceMax: 500
 --- !u!1 &884832973
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,8 +410,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 272b0752298b506a2932d47f925c10e0, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1583251942
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,8 +442,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2557d2cd185593047b91192aa7e6c6d1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   debug: 0
   material: {fileID: 2100000, guid: bf703e7ed18d3a5499473cfc4dcbaf80, type: 2}
   meshFilters:
@@ -492,8 +492,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 228c82775055fc84e80071750c7644a3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1583251946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -504,8 +504,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ebd9d716dfe799443bce6565ab571275, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   seedPlains: 867309
   frequencyPlains: 1.5
   fractalGainPlains: 0.3
@@ -524,7 +524,7 @@ MonoBehaviour:
   falloffSelect: 0.107
   thresholdSelect: 0
   numStepsSelect: 1
-  selectInterpType: 0
+  selectInterpType: 3
   fractalNoiseTypePlains: 0
   interpPlains: 0
   fractalTypePlains: 0
@@ -537,16 +537,16 @@ MonoBehaviour:
   gradient:
     serializedVersion: 2
     key0: {r: 0.12993945, g: 0.13188492, b: 0.6886792, a: 1}
-    key1: {r: 0.5647059, g: 0.17254902, b: 0.17254902, a: 1}
-    key2: {r: 0, g: 0, b: 0, a: 0}
+    key1: {r: 0.25454605, g: 0.42745098, b: 0.1529412, a: 1}
+    key2: {r: 0.5647059, g: 0.17254902, b: 0.17254902, a: 1}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
+    ctime0: 17926
+    ctime1: 31033
+    ctime2: 65535
     ctime3: 0
     ctime4: 0
     ctime5: 0
@@ -554,14 +554,14 @@ MonoBehaviour:
     ctime7: 0
     atime0: 0
     atime1: 65535
-    atime2: 0
+    atime2: 65535
     atime3: 0
     atime4: 0
     atime5: 0
     atime6: 0
     atime7: 0
-    m_Mode: 0
-    m_NumColorKeys: 2
+    m_Mode: 1
+    m_NumColorKeys: 3
     m_NumAlphaKeys: 2
 --- !u!114 &1583251947
 MonoBehaviour:
@@ -573,8 +573,8 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65ec1a6e7c50cb449a59e008386a723a, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   debug: 0
   interval: 0.5
   populationSize: 20
@@ -687,8 +687,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 74150e306b843b916962d283fd5bb142, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!108 &1658712139
 Light:
   m_ObjectHideFlags: 0

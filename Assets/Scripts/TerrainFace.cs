@@ -207,7 +207,8 @@ public class Chunk
         // If the detail level is between 0 and max.
         if (detailLevel >= 0 && detailLevel < planet.lods.Length)
         {
-            if (Vector3.Distance(normalizedPos * planet.radius, planet.cameraTransform.position) <= planet.lods[detailLevel].range)
+            float elevation = planet.noiseGenerator.GetNoise3D(normalizedPos);
+            if (Vector3.Distance(normalizedPos *(1+elevation)* planet.radius, planet.cameraTransform.position) <= planet.lods[detailLevel].range * planet.radius)
             {
                 // Assign the children of the quad (grandchildren not included). 
                 // Position is calculated on a cube and based on the fact that each child has 1/2 the radius of its parent
@@ -228,10 +229,11 @@ public class Chunk
     // Update the chunk (and maybe its children too)
     public void UpdateChunk()
     {
-        float distanceToPlayer = Vector3.Distance(normalizedPos * planet.radius, planet.cameraTransform.position);
+        float elevation = planet.noiseGenerator.GetNoise3D(normalizedPos);
+        float distanceToPlayer = Vector3.Distance(normalizedPos * (1 + elevation) * planet.radius, planet.cameraTransform.position);
         if (detailLevel < planet.lods.Length)
         {
-            if (distanceToPlayer > planet.lods[detailLevel].range)
+            if (distanceToPlayer > planet.lods[detailLevel].range * planet.radius)
             {
                 children = new Chunk[0];
             }

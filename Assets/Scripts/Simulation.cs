@@ -27,7 +27,7 @@ public class Simulation : MonoBehaviour
             newWater.transform.position = Random.onUnitSphere;
         }
 
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 50; ++i) {
             GameObject newRabbit = GameObject.Instantiate(rabbit);
             newRabbit.transform.position = Random.onUnitSphere;
         }

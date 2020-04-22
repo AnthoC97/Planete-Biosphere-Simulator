@@ -13,9 +13,9 @@ public class Simulation : MonoBehaviour
         planetNoiseScript =
             GameObject.Find("Planet").GetComponent<PBSNoiseScript>();
 
-        GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
         GameObject[] food = GameObject.FindGameObjectsWithTag("Food");
         GameObject[] water = GameObject.FindGameObjectsWithTag("Water");
+        GameObject rabbit = GameObject.Find("Rabbit");
 
         for (int i = 0; i < 100; ++i) {
             GameObject newFood = GameObject.Instantiate(food[0]);
@@ -27,17 +27,24 @@ public class Simulation : MonoBehaviour
             newWater.transform.position = Random.onUnitSphere;
         }
 
+        for (int i = 0; i < 100; ++i) {
+            GameObject newRabbit = GameObject.Instantiate(rabbit);
+            newRabbit.transform.position = Random.onUnitSphere;
+        }
+
+        GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
+
         foreach (GameObject entity in entities) {
             Vector3 normalizedPosition = entity.transform.position.normalized;
             entity.transform.position =
                 GetGroundPositionWithElevation(normalizedPosition, .5f);
 
-            Entity entityActions = entity.GetComponent<Entity>();
+            //Entity entityActions = entity.GetComponent<Entity>();
 
-            if (entityActions != null && !entityActions.HasActionsQueued()) {
-                Vector3 movement = new Vector3(0, 10, 0);
-                MoveEntityRelative(entity, entityActions, movement);
-            }
+            //if (entityActions != null && !entityActions.HasActionsQueued()) {
+            //    Vector3 movement = new Vector3(0, 10, 0);
+            //    MoveEntityRelative(entity, entityActions, movement);
+            //}
         }
 
         food = GameObject.FindGameObjectsWithTag("Food");

@@ -128,7 +128,7 @@ public class IA : MonoBehaviour
     GameObject FirstWithTagInSenseRange(string tag)
     {
         Collider[] colliders =
-            Physics.OverlapSphere(transform.position, 100, 1);
+            Physics.OverlapSphere(transform.position, 10, 1);
 
         for(int i = 0; i < colliders.Length; i++)
         {

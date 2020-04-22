@@ -16,7 +16,10 @@ public class ActionEat : Action
 
     public override (bool done, bool result) Execute()
     {
-        // TODO Check if food is null
+        if (food == null) {
+            return (true, false);
+        }
+
         framesElapsed += 1;
 
         if (framesElapsed > framesToEat) {
@@ -31,6 +34,10 @@ public class ActionEat : Action
 
     public override bool CanBeExecuted()
     {
+        if (food == null) {
+            return false;
+        }
+
         return Vector3.Distance(food.transform.position,
                 artificialIntelligence.gameObject.transform.position) < 1;
     }

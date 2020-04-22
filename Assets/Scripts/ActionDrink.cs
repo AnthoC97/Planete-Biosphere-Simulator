@@ -16,7 +16,10 @@ public class ActionDrink : Action
 
     public override (bool done, bool result) Execute()
     {
-        // TODO Check if water is null
+        if (water == null) {
+            return (true, false);
+        }
+
         framesElapsed += 1;
 
         if (framesElapsed > framesToDrink) {
@@ -31,6 +34,10 @@ public class ActionDrink : Action
 
     public override bool CanBeExecuted()
     {
+        if (water == null) {
+            return false;
+        }
+
         return Vector3.Distance(water.transform.position,
                 artificialIntelligence.gameObject.transform.position) < 1;
     }

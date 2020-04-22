@@ -273,9 +273,9 @@ MonoBehaviour:
   xSpeed: 1.2
   ySpeed: 120
   scrollSpeed: 50
-  yMinLimit: -20
-  yMaxLimit: 80
-  distanceMin: 20
+  yMinLimit: -40
+  yMaxLimit: 90
+  distanceMin: 10
   distanceMax: 600
 --- !u!1 &124910153
 GameObject:

@@ -12,7 +12,20 @@ public class Simulation : MonoBehaviour
         planet = GameObject.Find("Planet").GetComponent<Planet>();
         planetNoiseScript =
             GameObject.Find("Planet").GetComponent<PBSNoiseScript>();
+
         GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
+        GameObject[] food = GameObject.FindGameObjectsWithTag("Food");
+        GameObject[] water = GameObject.FindGameObjectsWithTag("Water");
+
+        for (int i = 0; i < 100; ++i) {
+            GameObject newFood = GameObject.Instantiate(food[0]);
+            newFood.transform.position = Random.onUnitSphere;
+        }
+
+        for (int i = 0; i < 100; ++i) {
+            GameObject newWater = GameObject.Instantiate(water[0]);
+            newWater.transform.position = Random.onUnitSphere;
+        }
 
         foreach (GameObject entity in entities) {
             Vector3 normalizedPosition = entity.transform.position.normalized;
@@ -27,14 +40,15 @@ public class Simulation : MonoBehaviour
             }
         }
 
-        GameObject[] food = GameObject.FindGameObjectsWithTag("Food");
+        food = GameObject.FindGameObjectsWithTag("Food");
+        water = GameObject.FindGameObjectsWithTag("Water");
+
         foreach (GameObject entity in food) {
             Vector3 normalizedPosition = entity.transform.position.normalized;
             entity.transform.position =
                 GetGroundPositionWithElevation(normalizedPosition, .5f);
         }
 
-        GameObject[] water = GameObject.FindGameObjectsWithTag("Water");
         foreach (GameObject entity in water) {
             Vector3 normalizedPosition = entity.transform.position.normalized;
             entity.transform.position =

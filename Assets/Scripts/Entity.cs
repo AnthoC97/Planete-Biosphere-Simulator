@@ -26,7 +26,7 @@ public class Entity : MonoBehaviour
         return true;
     }
 
-    public (bool, bool) ExecuteCurrentAction()
+    public (bool done, bool result) ExecuteCurrentAction()
     {
         /* TODO Discuss whether actions that cannot be executed should be
            removed from the queue */

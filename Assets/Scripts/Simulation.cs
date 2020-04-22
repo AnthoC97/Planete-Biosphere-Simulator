@@ -26,9 +26,23 @@ public class Simulation : MonoBehaviour
                 MoveEntityRelative(entity, entityActions, movement);
             }
         }
+
+        GameObject[] food = GameObject.FindGameObjectsWithTag("Food");
+        foreach (GameObject entity in food) {
+            Vector3 normalizedPosition = entity.transform.position.normalized;
+            entity.transform.position =
+                GetGroundPositionWithElevation(normalizedPosition, .5f);
+        }
+
+        GameObject[] water = GameObject.FindGameObjectsWithTag("Water");
+        foreach (GameObject entity in water) {
+            Vector3 normalizedPosition = entity.transform.position.normalized;
+            entity.transform.position =
+                GetGroundPositionWithElevation(normalizedPosition, .5f);
+        }
     }
 
-    private Vector3 GetGroundPositionWithElevation(Vector3 normalizedPosition,
+    public Vector3 GetGroundPositionWithElevation(Vector3 normalizedPosition,
             float addedElevation)
     {
         float elevation = planetNoiseScript
@@ -93,7 +107,12 @@ public class Simulation : MonoBehaviour
 
             if (entityActions.HasActionsQueued()) {
                 var status = entityActions.ExecuteCurrentAction();
-                Debug.Log("Executing action, status: " + status.ToString());
+                if (status.done) {
+                    Debug.Log("Done action, result: "
+                            + status.result.ToString()
+                            + ". Actions remain: "
+                            + entityActions.HasActionsQueued());
+                }
             }
         }
     }

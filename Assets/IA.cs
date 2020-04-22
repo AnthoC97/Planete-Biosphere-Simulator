@@ -58,6 +58,12 @@ public class IA : MonoBehaviour
 
     void check()
     {
+        if (hunger >= 100 || thirst >= 100 || stamina <= 0)
+        {
+            GameObject.Destroy(gameObject);
+            return;
+        }
+
         //if (currentState == state.idle) // TODO If this doesn't work, check HasActionsQueued
         if (!entity.HasActionsQueued())
         {
@@ -77,10 +83,6 @@ public class IA : MonoBehaviour
             else if (hunger > thirst && hunger > 20f)
             {
                 currentState = state.searching_for_food;
-            }
-            else if (hunger == 1000 || thirst == 1000 || stamina <= 0)
-            {
-                GameObject.Destroy(gameObject);
             }
         }
 

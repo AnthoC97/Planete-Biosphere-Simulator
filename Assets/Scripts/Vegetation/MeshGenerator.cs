@@ -7,19 +7,21 @@ public class MeshGenerator : MonoBehaviour
     public DeterministicGrammar g1;
     public StochasticGrammar g2;
     public DeterministicGrammar g3;
+    public GameObject leaf;
     public float trunck_height = 1f;
     public float base_radius = 0.2f;
     public int deltaAngle = 15;
     public float base_angle = 30f;
+    public Material trunk_mat;
 
     public void Start()
     {
-        //string word = GenerateWord(g1, 3);
-        //WordToTree(word, Vector3.zero);
-        string word = GenerateWord(g2, 3);
+        string word = GenerateWord(g1, 3);
         WordTo2DTree(word, new Vector3(5, 0, 5));
-        word = GenerateWord(g3, 3);
-        WordTo3DTree(word, Vector3.zero);
+        //string word = GenerateWord(g2, 3);
+        //WordTo2DTree(word, new Vector3(5, 0, 5));
+        //word = GenerateWord(g3, 1);
+        //WordTo3DTree(word, Vector3.zero);
         //for (int i = 0; i < 50; i++)
         //{
         //    float x = Random.Range(-28, 28);
@@ -44,11 +46,11 @@ public class MeshGenerator : MonoBehaviour
             foreach(char c in word)
             {
                 int j = 0;
-                foreach (char symboml in g.V)
+                foreach (char symbol in g.V)
                 {
-                    if (symboml == c)
+                    if (symbol == c)
                         tmp += g.P[j];
-                    Debug.Log(symboml);
+                    Debug.Log(symbol);
                     j++;
                 }
                 if(c == '+' || c == '-' || c == '[' || c == ']')
@@ -72,21 +74,34 @@ public class MeshGenerator : MonoBehaviour
             foreach(char c in word)
             {
                 int j = 0;
-                for(int k = 0; k < g.V_Keys.Count; k++)
+                foreach (char symbol in g.V)
                 {
-                    if(g.V_Keys[k] == c)
+                    float rdm = Random.value;
+                    float step = 0;
+                    foreach(ProbOfRules por in g.probsOfRules)
                     {
-                        prob = Random.Range(0, g.V_Values[k] - 1);
-                        tmp += g.P[j + prob];
+                        if(por.symbol == symbol)
+                        {
+                            for (int k = 0; k < por.probs.Count; k++)
+                            {
+                                Debug.Log("k : " + k + ", step : " + step + ", rdm : " + rdm + ", current prob + step : " + (por.probs[k] + step));
+                                if (step < rdm && rdm <= por.probs[k] + step)
+                                {
+                                    Debug.Log("ooook : " + g.P[j + prob]);
+                                    tmp += g.P[j + prob];
+                                    break;
+                                }
+                                step += por.probs[k];
+                            }
+                        }
                     }
-                    j += g.V_Values[k];
                 }
                 if(c == '+' || c == '-' || c == '[' || c == ']')
                 {
                     tmp += c;
                 }
             }
-            //Debug.Log(tmp);
+            Debug.Log("tmp : " + tmp);
             word = tmp;
         }
         return word;
@@ -109,6 +124,13 @@ public class MeshGenerator : MonoBehaviour
                 cylinder.CreateCylinder();
                 DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(0, 0, angle), pivot);
                 pivot += Quaternion.Euler(0, 0, angle) * new Vector3(0,trunck_height, 0);
+                ++i;
+            }
+            else if (c == 'A')
+            {
+                Debug.Log("OOOOOK");
+                Instantiate(leaf, pivot, Quaternion.Euler(0, 0, angle));
+                pivot += Quaternion.Euler(0, 0, angle) * new Vector3(pivot.x, trunck_height, pivot.z);
                 ++i;
             }
             else if(c == 'B')
@@ -167,6 +189,12 @@ public class MeshGenerator : MonoBehaviour
                 Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height*1.5f, deltaAngle);
                 cylinder.CreateCylinder();
                 DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(l_angle, u_angle, h_angle), pivot);
+                pivot += Quaternion.Euler(l_angle, u_angle, h_angle) * new Vector3(pivot.x, trunck_height, pivot.z);
+                ++i;
+            }
+            else if(c == 'A')
+            {
+                Instantiate(leaf, pivot, Quaternion.Euler(l_angle, u_angle, h_angle));
                 pivot += Quaternion.Euler(l_angle, u_angle, h_angle) * new Vector3(pivot.x, trunck_height, pivot.z);
                 ++i;
             }
@@ -232,7 +260,7 @@ public class MeshGenerator : MonoBehaviour
         go.transform.SetParent(go_parent.transform);
         //go.transform.localPosition = Vector3.zero;
         MeshRenderer meshRenderer = go.AddComponent<MeshRenderer>();
-        meshRenderer.sharedMaterial = new Material(Shader.Find("Diffuse"));
+        meshRenderer.sharedMaterial = trunk_mat;
 
         MeshFilter meshFilter = go.AddComponent<MeshFilter>();
 

@@ -8,4 +8,5 @@ public abstract class Grammar : ScriptableObject
     public char[] S;
     public string axiom;
     public List<string> P;
+    public char[] V;
 }

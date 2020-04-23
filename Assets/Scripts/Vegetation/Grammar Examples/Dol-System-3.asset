@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3011bf84948ffc741adabe7fee99e4ff, type: 3}
   m_Name: Dol-System-3
   m_EditorClassIdentifier: 
-  V: 46004200
   S: 2b002d00
   axiom: B
   P:
   - FF
-  - F[+B]F[-B]+B
+  - F[+BA]F[-BA]+B
+  - A
+  V: 460042004100

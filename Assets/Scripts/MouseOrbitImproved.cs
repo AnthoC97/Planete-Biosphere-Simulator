@@ -41,10 +41,14 @@ public class MouseOrbitImproved : MonoBehaviour {
     {
         if (target)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * distance * 0.02f;
-            y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
+            if (Input.GetMouseButton(0))
+            {
+                x += Input.GetAxis("Mouse X") * xSpeed * distance * 0.02f;
+                y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
 
-            y = ClampAngle(y, yMinLimit, yMaxLimit);
+                y = ClampAngle(y, yMinLimit, yMaxLimit);
+
+            }
 
             Quaternion rotation = Quaternion.Euler(y, x, 0);
 

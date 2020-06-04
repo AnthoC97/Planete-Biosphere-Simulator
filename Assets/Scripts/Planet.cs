@@ -42,6 +42,7 @@ public class Planet : MonoBehaviour
     [Min(0.1f)]
     public float intervalUpdateLOD = 0.5f;
     public LODConfig[] lods;
+    bool isUsingNoiseGenetic = false;
 
     private void Awake()
     {
@@ -78,12 +79,12 @@ public class Planet : MonoBehaviour
     {
         while(true)
         {
-            yield return new WaitForSeconds(intervalUpdateLOD);
-            if (Vector3.Distance(cameraTransform.position, lastCameraPosition) >= lodThreshold)
+            if (!isUsingNoiseGenetic && Vector3.Distance(cameraTransform.position, lastCameraPosition) >= lodThreshold)
             {
                 lastCameraPosition = cameraTransform.position;
                 UpdateMesh();
             }
+            yield return new WaitForSeconds(intervalUpdateLOD);
         }
     }
 
@@ -152,5 +153,15 @@ public class Planet : MonoBehaviour
     {
         this.noiseGenerator = noiseGenerator;
         GenerateMesh();
+    }
+
+    public void SetIsUsingNoiseGenetic(bool isUsingNoiseGenetic)
+    {
+        this.isUsingNoiseGenetic = isUsingNoiseGenetic;
+    }
+
+    public bool GetIstUsingNoiseGenetic()
+    {
+        return isUsingNoiseGenetic;
     }
 }

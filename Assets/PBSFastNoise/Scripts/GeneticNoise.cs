@@ -46,6 +46,7 @@ public class GeneticNoise : MonoBehaviour
     }
 
     IEnumerator RunAlgoGenetic() {
+        planet.SetIsUsingNoiseGenetic(true);
         for(int i = 0; i < populationSize; ++i)
             solutions.Add(Generate());
 
@@ -76,6 +77,8 @@ public class GeneticNoise : MonoBehaviour
                 }
             }
         }
+
+        planet.SetIsUsingNoiseGenetic(false);
     }
 
     List<GeneticValue> Generate()

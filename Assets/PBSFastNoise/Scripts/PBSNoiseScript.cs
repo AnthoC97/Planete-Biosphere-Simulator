@@ -14,7 +14,7 @@ public class PBSNoiseScript : MonoBehaviour
 
     private void OnValidate()
     {
-        if (planet)
+        if (planet && !planet.GetIstUsingNoiseGenetic())
             planet.UpdateNoiseGenerator(GetNoiseGenerator());
     }
 

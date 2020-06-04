@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Clamp between 0 and 1
 public class ZeroOneNoiseModule : PBSNoiseGenerator
 {
     PBSNoiseGenerator noiseGenerator;
@@ -15,6 +16,6 @@ public class ZeroOneNoiseModule : PBSNoiseGenerator
         float elevation = noiseGenerator.GetNoise3D(vector);
         if (float.IsInfinity(elevation) || float.IsNaN(elevation))
             elevation = 1f;
-        return Mathf.Clamp((elevation+1)/2, 0, 1.0f);
+        return Mathf.Clamp(elevation, 0, 1.0f);
     }
 }

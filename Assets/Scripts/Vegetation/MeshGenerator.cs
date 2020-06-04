@@ -18,8 +18,8 @@ public class MeshGenerator : MonoBehaviour
     {
         string word = GenerateWord(g1, 3);
         WordTo2DTree(word, new Vector3(5, 0, 5));
-        //string word = GenerateWord(g2, 3);
-        //WordTo2DTree(word, new Vector3(5, 0, 5));
+        word = GenerateWord(g2, 3);
+        WordTo2DTree(word, new Vector3(5, 0, 0));
         //word = GenerateWord(g3, 1);
         //WordTo3DTree(word, Vector3.zero);
         //for (int i = 0; i < 50; i++)

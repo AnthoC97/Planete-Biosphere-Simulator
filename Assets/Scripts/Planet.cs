@@ -71,7 +71,9 @@ public class Planet : MonoBehaviour
         {
             waterMesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             waterMesh.transform.localScale = Vector3.one * (radius +radius*waterPercent) * 2;
-            waterMesh.GetComponent<MeshRenderer>().sharedMaterial = waterMaterial;
+            MeshRenderer mr = waterMesh.GetComponent<MeshRenderer>();
+            mr.sharedMaterial = waterMaterial;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
     }
 

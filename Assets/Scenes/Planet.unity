@@ -581,9 +581,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   configs:
-  - randomGenerator: 1
+  - randomGenerator: 0
     seed: 50
     minDistance: 10
+    maxIteration: 999
     obj: {fileID: 166431193}
 --- !u!1 &1887848557
 GameObject:

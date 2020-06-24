@@ -564,8 +564,7 @@ MonoBehaviour:
   debug: 0
   interval: 0.5
   populationSize: 200
-  sectorCount: 6
-  stackCount: 6
+  loopPointCount: 50
   minElevation: 5000
   maxElevation: -5000
 --- !u!114 &1583251948
@@ -575,7 +574,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1583251942}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4743b151a649ab42986aa17809527e0, type: 3}
   m_Name: 

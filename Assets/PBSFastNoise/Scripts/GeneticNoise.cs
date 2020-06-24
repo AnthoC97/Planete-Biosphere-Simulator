@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Reflection;
 using System;
 using System.Linq;
+using MoonSharp.Interpreter;
+using System.IO;
 
 public class GeneticNoise : MonoBehaviour
 {
@@ -145,7 +147,31 @@ public class GeneticNoise : MonoBehaviour
             geneticVal.ApplyValue(noiseScript);
         }
 
-        foreach(Vector3 point in scorerPoints)
+        Script script = new Script();
+        script.Options.ScriptLoader = new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
+        ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath+"/?", Application.dataPath+"/?.lua" };
+        if (File.Exists(Application.dataPath+"/../scorer.lua"))
+        {
+            script.DoFile("scorer.lua");
+
+            foreach (Vector3 point in scorerPoints)
+            {
+                /*float elevation = noiseScript.GetNoiseGenerator().GetNoise3D(point);
+                if (float.IsNaN(elevation) || float.IsInfinity(elevation)) score += -9999999;
+                if (elevation == 0) ++score;*/
+                Table tablePoint = new Table(script);
+                tablePoint.Set("x", DynValue.NewNumber(point.x));
+                tablePoint.Set("y", DynValue.NewNumber(point.y));
+                tablePoint.Set("z", DynValue.NewNumber(point.z));
+                script.Call(script.Globals["scorePerPoint"], tablePoint);
+            }
+
+            DynValue res = script.Call(script.Globals["getScore"]);
+            Debug.Log(res.Number);
+            score = (float)res.Number;
+        }
+
+        /*foreach (Vector3 point in scorerPoints)
         {
             float elevation = noiseScript.GetNoiseGenerator().GetNoise3D(point);
             if (float.IsNaN(elevation) || float.IsInfinity(elevation)) score += -9999999;
@@ -153,13 +179,13 @@ public class GeneticNoise : MonoBehaviour
             if (minElevation > elevation) minElevation = elevation;
             if (elevation <= maxBelow) below.Add(elevation);
             else above.Add(elevation);*/
-            if (elevation == 0) ++score;
-        }
+        /*if (elevation == 0) ++score;
+      }*/
 
         /*float percent = (float)below.Count/(below.Count + above.Count);
         float score = 1 - Mathf.Abs(percentage - percent);*/
-        score = score/((loopPointCount + 1) * (loopPointCount + 1));
-        if(score > bestScore)
+        //score = score/((loopPointCount + 1) * (loopPointCount + 1));
+        if (score > bestScore)
         {
             bestScore = score;
             bestSolution = solution;
@@ -173,7 +199,20 @@ public class GeneticNoise : MonoBehaviour
 
     bool EndCriteria()
     {
-        return bestScore >= 1;//0.95;
+        bool End = true;
+        Script script = new Script();
+        script.Options.ScriptLoader = new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
+        ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath + "/?", Application.dataPath + "/?.lua" };
+        if (File.Exists(Application.dataPath + "/../scorer.lua"))
+        {
+            script.DoFile("scorer.lua");
+
+            script.Globals["solutions"] = solutions;
+            DynValue res = script.Call(script.Globals["getIsEndCriteria"]);
+            End = res.Boolean;
+        }
+        return End;
+        //return bestScore >= 1;//0.95;
     }
 
     List<List<GeneticValue>> Selector()

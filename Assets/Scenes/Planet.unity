@@ -562,11 +562,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 0
-  interval: 0.5
+  interval: 1
   populationSize: 200
   loopPointCount: 20
-  minElevation: 5000
-  maxElevation: -5000
 --- !u!114 &1583251948
 MonoBehaviour:
   m_ObjectHideFlags: 0

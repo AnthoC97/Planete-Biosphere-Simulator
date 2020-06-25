@@ -1,3 +1,4 @@
+populationSize = 200;
 local points = getPoints();
 
 function getScore()

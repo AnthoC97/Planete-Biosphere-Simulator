@@ -64,11 +64,13 @@ public class GeneticNoise : MonoBehaviour
 
             script.Globals["noiseScript"] = planet.pbsNoiseScript;
             script.Globals["bestScore"] = float.MinValue;
+
             script.Globals["getPoints"] = (Func<Vector3[]>)GetScorerPoints;
             script.Globals["isNaN"] = (Func<float, bool>)IsNaN;
             script.Globals["isInfinity"] = (Func<float, bool>)IsInfinity;
 
             script.DoFile("scorer.lua");
+            populationSize = (int)script.Globals.Get("populationSize").Number;
         }
 
         StartCoroutine(RunAlgoGenetic());
@@ -197,7 +199,7 @@ public class GeneticNoise : MonoBehaviour
 
     List<List<GeneticValue>> Selector()
     {
-        int nBest = 8;
+        int nBest = Mathf.Min(notes.Count-1, 8);
         List<List<GeneticValue>> selections = new List<List<GeneticValue>>();
 
         for(int i=0; i<nBest; ++i)
@@ -215,8 +217,8 @@ public class GeneticNoise : MonoBehaviour
     List<GeneticValue> CrossOperator(List<GeneticValue> solution1, List<GeneticValue> solution2)
     {
         int num = solution1.Count/2;
-        List<GeneticValue> newSolution = solution1.GetRange(0, num);
-        newSolution.AddRange(solution2.GetRange(num + 1, solution2.Count));
+        List<GeneticValue> newSolution = solution1.GetRange(0, num-1);
+        newSolution.AddRange(solution2.GetRange(num, solution2.Count-num-1));
         return newSolution;
     }
 

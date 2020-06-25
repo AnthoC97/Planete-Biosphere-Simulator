@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using MoonSharp.Interpreter;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent]
+[DisallowMultipleComponent, MoonSharpUserData]
 public class PBSNoiseScript : MonoBehaviour
 {
     Planet planet;
@@ -14,7 +15,7 @@ public class PBSNoiseScript : MonoBehaviour
 
     private void OnValidate()
     {
-        if (planet)
+        if (planet && !planet.GetIstUsingNoiseGenetic())
             planet.UpdateNoiseGenerator(GetNoiseGenerator());
     }
 

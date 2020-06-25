@@ -29,14 +29,20 @@ public class Planet : MonoBehaviour
     public PBSNoiseGenerator noiseGenerator;
 
     public float radius = 10;
-    public Transform cameraTransform;
 
+    ////////////////////////// Water ////////////////////////
+    public Material waterMaterial;
+    public float waterPercent = 0.25f;
+    private GameObject waterMesh = null;
+
+    public Transform cameraTransform;
     public float cullingMinAngle = 45.0f;
     Vector3 lastCameraPosition;
     public float lodThreshold = 0;
     [Min(0.1f)]
     public float intervalUpdateLOD = 0.5f;
     public LODConfig[] lods;
+    bool isUsingNoiseGenetic = false;
 
     private void Awake()
     {
@@ -53,20 +59,34 @@ public class Planet : MonoBehaviour
     {
         Initialize();
         GenerateMesh();
+        GenerateWater();
 
         StartCoroutine(PlanetGenerationLoop());
+    }
+
+    void GenerateWater()
+    {
+        if (waterMesh) Destroy(waterMesh);
+        if(waterPercent > 0.0f)
+        {
+            waterMesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            waterMesh.transform.localScale = Vector3.one * (radius +radius*waterPercent) * 2;
+            MeshRenderer mr = waterMesh.GetComponent<MeshRenderer>();
+            mr.sharedMaterial = waterMaterial;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
     }
 
     IEnumerator PlanetGenerationLoop()
     {
         while(true)
         {
-            yield return new WaitForSeconds(intervalUpdateLOD);
-            if (Vector3.Distance(cameraTransform.position, lastCameraPosition) >= lodThreshold)
+            if (!isUsingNoiseGenetic && Vector3.Distance(cameraTransform.position, lastCameraPosition) >= lodThreshold)
             {
                 lastCameraPosition = cameraTransform.position;
                 UpdateMesh();
             }
+            yield return new WaitForSeconds(intervalUpdateLOD);
         }
     }
 
@@ -120,12 +140,13 @@ public class Planet : MonoBehaviour
             foreach (Chunk chunk in tf.GetVisibleChunks())
             {
                 Gizmos.color = Color.Lerp(Color.red, Color.green, (float)chunk.detailLevel / (lods.Length - 1));
-                Gizmos.DrawSphere(chunk.position.normalized * radius, Mathf.Lerp((lods.Length - 1)/2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
+                float elevation = noiseGenerator.GetNoise3D(chunk.position.normalized);
+                Gizmos.DrawSphere(chunk.position.normalized * (1+elevation)* radius, Mathf.Lerp((lods.Length - 1)/2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
 
                 Gizmos.color = Color.red;
                 chunk.GetNeighbourLOD();
                 foreach (byte b in chunk.neighbours)
-                    if (b == 1) Gizmos.DrawWireCube(chunk.position.normalized * radius, Vector3.one * Mathf.Lerp((lods.Length - 1) / 2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
+                    if (b == 1) Gizmos.DrawWireCube(chunk.position.normalized * (1 + elevation) * radius, Vector3.one * Mathf.Lerp((lods.Length - 1) / 2, 0.5f, (float)chunk.detailLevel / (lods.Length - 1)));
             }
         }
     }
@@ -134,5 +155,15 @@ public class Planet : MonoBehaviour
     {
         this.noiseGenerator = noiseGenerator;
         GenerateMesh();
+    }
+
+    public void SetIsUsingNoiseGenetic(bool isUsingNoiseGenetic)
+    {
+        this.isUsingNoiseGenetic = isUsingNoiseGenetic;
+    }
+
+    public bool GetIstUsingNoiseGenetic()
+    {
+        return isUsingNoiseGenetic;
     }
 }

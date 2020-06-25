@@ -14,7 +14,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0f, 2)]
     public float fractalGainPlains;
 
-    [Range(0, 20)]
+    //[Range(0, 20)]
     public int octavePlains;
 
     [Range(0, 10)]
@@ -30,7 +30,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 2)]
     public float fractalGainMountains;
 
-    [Range(0, 20)]
+    //[Range(0, 20)]
     public int octaveMountains;
 
     [Range(0, 10)]
@@ -46,7 +46,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 2)]
     public float fractalGainMask;
 
-    [Range(0, 20)]
+    //[Range(0, 20)]
     public int octaveMask;
 
     [Range(0, 10)]
@@ -103,10 +103,12 @@ public class CustomNoiseScript : PBSNoiseScript
         PBSNoiseGenerator result = new SelectNoiseModule(fractalPlaineGenerator, fractalMountainsGenerator, maskGenerator, selectInterpType, falloffSelect, thresholdSelect, numStepsSelect);
         //return result;
 
-        PBSNoiseGenerator addGenerator = result + 1;
-        PBSNoiseGenerator scaleGenerator = new ScaleBiasNoiseModule(addGenerator, 0.5f, 0.0f);
+        /*PBSNoiseGenerator addGenerator = result + 1;
+        PBSNoiseGenerator scaleGenerator = new ScaleBiasNoiseModule(addGenerator, 0.5f, 0.0f);*/
+        PBSNoiseGenerator zeroOneResult = new ZeroOneNoiseModule(result);
+        PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(zeroOneResult, 0.2f, 0f);
 
-        return scaleGenerator;
+        return scaleBiasGenerator;
     }
 
     public Gradient gradient = new Gradient();
@@ -115,6 +117,10 @@ public class CustomNoiseScript : PBSNoiseScript
     {
         float elevation = GetNoiseGenerator().GetNoise3D(pointOnUnitSphere);
         //return Color.Lerp(Color.red, Color.green, elevation);
-        return gradient.Evaluate(elevation);
+        /*if (float.IsInfinity(elevation) || float.IsNaN(elevation))
+            elevation = 0;*/
+        if(elevation < 0 || elevation > 1)
+        print(elevation);
+        return gradient.Evaluate(elevation/*Mathf.Clamp(elevation, 0.0f, 1.0f)*/);
     }
 }

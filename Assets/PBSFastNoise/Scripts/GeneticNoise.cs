@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Reflection;
 using System;
 using System.Linq;
+using MoonSharp.Interpreter;
+using System.IO;
 
 public class GeneticNoise : MonoBehaviour
 {
@@ -24,11 +26,16 @@ public class GeneticNoise : MonoBehaviour
     List<GeneticValue> bestSolution;
     float bestScore = Mathf.NegativeInfinity;
 
-    public int sectorCount = 5;
-    public int stackCount = 5;
+    public int loopPointCount = 6;
 
-    public float minElevation = 5000;
-    public float maxElevation = -5000;
+    static Vector3[] scorerPoints;
+    Script script;
+
+    private void OnEnable()
+    {
+        // Store points before to speed up
+        SetupScorerPoints();
+    }
 
     void Start()
     {
@@ -42,10 +49,35 @@ public class GeneticNoise : MonoBehaviour
         solutions = new List<List<GeneticValue>>();
         notes = new List<float>();
 
+        // Setup script lua
+        script = null;
+        if (File.Exists(Application.dataPath + "/../scorer.lua"))
+        {
+            UserData.RegisterAssembly();
+            UserData.RegisterType<Vector3>();
+            UserData.RegisterType<Color>();
+
+            script = new Script();
+            script.Options.ScriptLoader = new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
+            ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath + "/?", Application.dataPath + "/?.lua" };
+            script.Options.DebugPrint = Debug.Log;
+
+            script.Globals["noiseScript"] = planet.pbsNoiseScript;
+            script.Globals["bestScore"] = float.MinValue;
+
+            script.Globals["getPoints"] = (Func<Vector3[]>)GetScorerPoints;
+            script.Globals["isNaN"] = (Func<float, bool>)IsNaN;
+            script.Globals["isInfinity"] = (Func<float, bool>)IsInfinity;
+
+            script.DoFile("scorer.lua");
+            populationSize = (int)script.Globals.Get("populationSize").Number;
+        }
+
         StartCoroutine(RunAlgoGenetic());
     }
 
     IEnumerator RunAlgoGenetic() {
+        planet.SetIsUsingNoiseGenetic(true);
         for(int i = 0; i < populationSize; ++i)
             solutions.Add(Generate());
 
@@ -76,6 +108,8 @@ public class GeneticNoise : MonoBehaviour
                 }
             }
         }
+
+        planet.SetIsUsingNoiseGenetic(false);
     }
 
     List<GeneticValue> Generate()
@@ -123,10 +157,6 @@ public class GeneticNoise : MonoBehaviour
     float Evaluate(int index)
     {
         List<GeneticValue> solution = solutions[index];
-        float maxBelow = 0.2f;
-        float percentage = 0.5f;
-        List<float> below = new List<float>();
-        List<float> above = new List<float>();
         float score = 0;
 
         // Apply solution
@@ -135,48 +165,19 @@ public class GeneticNoise : MonoBehaviour
             geneticVal.ApplyValue(noiseScript);
         }
 
-        float x, y, z, xy;                              // vertex position
-
-        float sectorStep = 2 * Mathf.PI / sectorCount;
-        float stackStep = Mathf.PI / stackCount;
-        float sectorAngle, stackAngle;
-
-        for (int i = 0; i <= stackCount; ++i)
+        if (script != null)
         {
-            stackAngle = Mathf.PI / 2 - i * stackStep;  // starting from pi/2 to -pi/2
-            xy = Mathf.Cos(stackAngle);                 // cos(u)
-            z = Mathf.Sin(stackAngle);                  // sin(u)
-
-            // add (sectorCount+1) vertices per stack
-            // the first and last vertices have same position and normal, but different tex coords
-            for (int j = 0; j <= sectorCount; ++j)
-            {
-                sectorAngle = j * sectorStep;           // starting from 0 to 2pi
-
-                // vertex position (x, y, z)
-                x = xy * Mathf.Cos(sectorAngle);             // r * cos(u) * cos(v)
-                y = xy * Mathf.Sin(sectorAngle);             // r * cos(u) * sin(v)
-
-                Vector3 pos = new Vector3(x, z, y);
-
-                float elevation = noiseScript.GetNoiseGenerator().GetNoise3D(pos);
-                if (float.IsNaN(elevation) || float.IsInfinity(elevation)) score += -9999999;
-                /*if (maxElevation < elevation) maxElevation = elevation;
-                if (minElevation > elevation) minElevation = elevation;
-                if (elevation <= maxBelow) below.Add(elevation);
-                else above.Add(elevation);*/
-                if (elevation == 0) ++score;
-            }
+            DynValue res = script.Call(script.Globals["getScore"]);
+            score = (float)res.Number;
         }
 
-        /*float percent = (float)below.Count/(below.Count + above.Count);
-        float score = 1 - Mathf.Abs(percentage - percent);*/
-        score = score/((stackCount + 1) * (sectorCount + 1));
-        if(score > bestScore)
+        // Si meilleur score l'afficher
+        if (score > bestScore)
         {
             bestScore = score;
             bestSolution = solution;
             bestNoiseGenerator = noiseScript.GetNoiseGenerator();
+            if(script != null) script.Globals["bestScore"] = bestScore;
             print("new best score: "+ bestScore);
             planet.UpdateNoiseGenerator(bestNoiseGenerator);
         }
@@ -186,12 +187,19 @@ public class GeneticNoise : MonoBehaviour
 
     bool EndCriteria()
     {
-        return bestScore >= 1;//0.95;
+        bool End = true;
+
+        if(script != null)
+        {
+            DynValue res = script.Call(script.Globals["isEndCriteria"]);
+            End = res.Boolean;
+        }
+        return End;
     }
 
     List<List<GeneticValue>> Selector()
     {
-        int nBest = 8;
+        int nBest = Mathf.Min(notes.Count-1, 8);
         List<List<GeneticValue>> selections = new List<List<GeneticValue>>();
 
         for(int i=0; i<nBest; ++i)
@@ -208,7 +216,10 @@ public class GeneticNoise : MonoBehaviour
 
     List<GeneticValue> CrossOperator(List<GeneticValue> solution1, List<GeneticValue> solution2)
     {
-        return solution1;
+        int num = solution1.Count/2;
+        List<GeneticValue> newSolution = solution1.GetRange(0, num-1);
+        newSolution.AddRange(solution2.GetRange(num, solution2.Count-num-1));
+        return newSolution;
     }
 
     List<GeneticValue> MutationOperator(List<GeneticValue> solution)
@@ -227,13 +238,27 @@ public class GeneticNoise : MonoBehaviour
         if (bestNoiseGenerator == null) return;
 
         Gizmos.color = Color.green;
+
+        foreach (Vector3 point in scorerPoints)
+        {
+            float elevation = bestNoiseGenerator.GetNoise3D(point);
+            elevation = Mathf.Clamp(elevation, 0, 1);
+            if (float.IsNaN(elevation)) elevation = 0;
+            Gizmos.DrawWireSphere(point * (1 + elevation) * planet.radius, 1.0f);
+        }
+    }
+
+    private void SetupScorerPoints()
+    {
+        List<Vector3> listPoints = new List<Vector3>();
+        HashSet<string> hashPoints = new HashSet<string>();
         float x, y, z, xy;                              // vertex position
 
-        float sectorStep = 2 * Mathf.PI / sectorCount;
-        float stackStep = Mathf.PI / stackCount;
+        float sectorStep = 2 * Mathf.PI / loopPointCount;
+        float stackStep = Mathf.PI / loopPointCount;
         float sectorAngle, stackAngle;
 
-        for (int i = 0; i <= stackCount; ++i)
+        for (int i = 0; i <= loopPointCount; ++i)
         {
             stackAngle = Mathf.PI / 2 - i * stackStep;  // starting from pi/2 to -pi/2
             xy = Mathf.Cos(stackAngle);                 // cos(u)
@@ -241,7 +266,7 @@ public class GeneticNoise : MonoBehaviour
 
             // add (sectorCount+1) vertices per stack
             // the first and last vertices have same position and normal, but different tex coords
-            for (int j = 0; j <= sectorCount; ++j)
+            for (int j = 0; j <= loopPointCount; ++j)
             {
                 sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
@@ -249,13 +274,27 @@ public class GeneticNoise : MonoBehaviour
                 x = xy * Mathf.Cos(sectorAngle);             // r * cos(u) * cos(v)
                 y = xy * Mathf.Sin(sectorAngle);             // r * cos(u) * sin(v)
 
-                Vector3 pos = new Vector3(x, z, y);
-                float elevation = bestNoiseGenerator.GetNoise3D(pos);
-                elevation = Mathf.Clamp(elevation, 0, 1);
-                if (float.IsNaN(elevation)) elevation = 0;
-                Gizmos.DrawWireSphere(pos * (1 + elevation) * planet.radius, 1.0f);
+                Vector3 point = new Vector3(x, y, z);
+                if(hashPoints.Add(point.ToString()))
+                    listPoints.Add(point);
             }
         }
+        scorerPoints = listPoints.ToArray();
+    }
+
+    public static Vector3[] GetScorerPoints()
+    {
+        return scorerPoints;
+    }
+
+    public static bool IsNaN(float value)
+    {
+        return float.IsNaN(value);
+    }
+
+    public static bool IsInfinity(float value)
+    {
+        return float.IsInfinity(value);
     }
 }
 

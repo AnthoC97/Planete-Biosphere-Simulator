@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Planet_Material
+  m_Name: Planet_VertexColor_Material
   m_Shader: {fileID: -6465566751694194690, guid: 4ee3f9db361e2c347948271eea9de2a1,
     type: 3}
   m_ShaderKeywords: 

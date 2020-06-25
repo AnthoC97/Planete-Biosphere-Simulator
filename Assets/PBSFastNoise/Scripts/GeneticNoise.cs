@@ -28,10 +28,8 @@ public class GeneticNoise : MonoBehaviour
 
     public int loopPointCount = 6;
 
-    public float minElevation = 5000;
-    public float maxElevation = -5000;
-
-    List<Vector3> scorerPoints;
+    static Vector3[] scorerPoints;
+    Script script;
 
     private void OnEnable()
     {
@@ -50,6 +48,28 @@ public class GeneticNoise : MonoBehaviour
 
         solutions = new List<List<GeneticValue>>();
         notes = new List<float>();
+
+        // Setup script lua
+        script = null;
+        if (File.Exists(Application.dataPath + "/../scorer.lua"))
+        {
+            UserData.RegisterAssembly();
+            UserData.RegisterType<Vector3>();
+            UserData.RegisterType<Color>();
+
+            script = new Script();
+            script.Options.ScriptLoader = new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
+            ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath + "/?", Application.dataPath + "/?.lua" };
+            script.Options.DebugPrint = Debug.Log;
+
+            script.Globals["noiseScript"] = planet.pbsNoiseScript;
+            script.Globals["bestScore"] = float.MinValue;
+            script.Globals["getPoints"] = (Func<Vector3[]>)GetScorerPoints;
+            script.Globals["isNaN"] = (Func<float, bool>)IsNaN;
+            script.Globals["isInfinity"] = (Func<float, bool>)IsInfinity;
+
+            script.DoFile("scorer.lua");
+        }
 
         StartCoroutine(RunAlgoGenetic());
     }
@@ -135,10 +155,6 @@ public class GeneticNoise : MonoBehaviour
     float Evaluate(int index)
     {
         List<GeneticValue> solution = solutions[index];
-        float maxBelow = 0.2f;
-        float percentage = 0.5f;
-        List<float> below = new List<float>();
-        List<float> above = new List<float>();
         float score = 0;
 
         // Apply solution
@@ -147,49 +163,19 @@ public class GeneticNoise : MonoBehaviour
             geneticVal.ApplyValue(noiseScript);
         }
 
-        Script script = new Script();
-        script.Options.ScriptLoader = new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
-        ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath+"/?", Application.dataPath+"/?.lua" };
-        if (File.Exists(Application.dataPath+"/../scorer.lua"))
+        if (script != null)
         {
-            script.DoFile("scorer.lua");
-
-            foreach (Vector3 point in scorerPoints)
-            {
-                /*float elevation = noiseScript.GetNoiseGenerator().GetNoise3D(point);
-                if (float.IsNaN(elevation) || float.IsInfinity(elevation)) score += -9999999;
-                if (elevation == 0) ++score;*/
-                Table tablePoint = new Table(script);
-                tablePoint.Set("x", DynValue.NewNumber(point.x));
-                tablePoint.Set("y", DynValue.NewNumber(point.y));
-                tablePoint.Set("z", DynValue.NewNumber(point.z));
-                script.Call(script.Globals["scorePerPoint"], tablePoint);
-            }
-
             DynValue res = script.Call(script.Globals["getScore"]);
-            Debug.Log(res.Number);
             score = (float)res.Number;
         }
 
-        /*foreach (Vector3 point in scorerPoints)
-        {
-            float elevation = noiseScript.GetNoiseGenerator().GetNoise3D(point);
-            if (float.IsNaN(elevation) || float.IsInfinity(elevation)) score += -9999999;
-            /*if (maxElevation < elevation) maxElevation = elevation;
-            if (minElevation > elevation) minElevation = elevation;
-            if (elevation <= maxBelow) below.Add(elevation);
-            else above.Add(elevation);*/
-        /*if (elevation == 0) ++score;
-      }*/
-
-        /*float percent = (float)below.Count/(below.Count + above.Count);
-        float score = 1 - Mathf.Abs(percentage - percent);*/
-        //score = score/((loopPointCount + 1) * (loopPointCount + 1));
+        // Si meilleur score l'afficher
         if (score > bestScore)
         {
             bestScore = score;
             bestSolution = solution;
             bestNoiseGenerator = noiseScript.GetNoiseGenerator();
+            if(script != null) script.Globals["bestScore"] = bestScore;
             print("new best score: "+ bestScore);
             planet.UpdateNoiseGenerator(bestNoiseGenerator);
         }
@@ -200,19 +186,13 @@ public class GeneticNoise : MonoBehaviour
     bool EndCriteria()
     {
         bool End = true;
-        Script script = new Script();
-        script.Options.ScriptLoader = new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
-        ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath + "/?", Application.dataPath + "/?.lua" };
-        if (File.Exists(Application.dataPath + "/../scorer.lua"))
-        {
-            script.DoFile("scorer.lua");
 
-            script.Globals["solutions"] = solutions;
-            DynValue res = script.Call(script.Globals["getIsEndCriteria"]);
+        if(script != null)
+        {
+            DynValue res = script.Call(script.Globals["isEndCriteria"]);
             End = res.Boolean;
         }
         return End;
-        //return bestScore >= 1;//0.95;
     }
 
     List<List<GeneticValue>> Selector()
@@ -234,7 +214,10 @@ public class GeneticNoise : MonoBehaviour
 
     List<GeneticValue> CrossOperator(List<GeneticValue> solution1, List<GeneticValue> solution2)
     {
-        return solution1;
+        int num = solution1.Count/2;
+        List<GeneticValue> newSolution = solution1.GetRange(0, num);
+        newSolution.AddRange(solution2.GetRange(num + 1, solution2.Count));
+        return newSolution;
     }
 
     List<GeneticValue> MutationOperator(List<GeneticValue> solution)
@@ -265,7 +248,8 @@ public class GeneticNoise : MonoBehaviour
 
     private void SetupScorerPoints()
     {
-        scorerPoints = new List<Vector3>();
+        List<Vector3> listPoints = new List<Vector3>();
+        HashSet<string> hashPoints = new HashSet<string>();
         float x, y, z, xy;                              // vertex position
 
         float sectorStep = 2 * Mathf.PI / loopPointCount;
@@ -288,9 +272,27 @@ public class GeneticNoise : MonoBehaviour
                 x = xy * Mathf.Cos(sectorAngle);             // r * cos(u) * cos(v)
                 y = xy * Mathf.Sin(sectorAngle);             // r * cos(u) * sin(v)
 
-                scorerPoints.Add(new Vector3(x, z, y));
+                Vector3 point = new Vector3(x, y, z);
+                if(hashPoints.Add(point.ToString()))
+                    listPoints.Add(point);
             }
         }
+        scorerPoints = listPoints.ToArray();
+    }
+
+    public static Vector3[] GetScorerPoints()
+    {
+        return scorerPoints;
+    }
+
+    public static bool IsNaN(float value)
+    {
+        return float.IsNaN(value);
+    }
+
+    public static bool IsInfinity(float value)
+    {
+        return float.IsInfinity(value);
     }
 }
 

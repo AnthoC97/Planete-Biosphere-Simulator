@@ -564,7 +564,7 @@ MonoBehaviour:
   debug: 0
   interval: 0.5
   populationSize: 200
-  loopPointCount: 50
+  loopPointCount: 20
   minElevation: 5000
   maxElevation: -5000
 --- !u!114 &1583251948

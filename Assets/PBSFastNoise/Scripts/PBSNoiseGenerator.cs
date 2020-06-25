@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using MoonSharp.Interpreter;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ public enum FractalNoiseType
     Simplex
 };
 
+[MoonSharpUserData]
 public class PBSNoiseGenerator
 {
     public virtual float GetNoise3D(Vector3 vector)

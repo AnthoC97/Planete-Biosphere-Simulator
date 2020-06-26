@@ -14,12 +14,31 @@ public class MeshGenerator : MonoBehaviour
     public float base_angle = 30f;
     public Material trunk_mat;
 
+    public int forestSize = 25;
+    public int elementSpacing = 3;
+
+    public GameObject[] trees;
+
     public void Start()
     {
-        string word = GenerateWord(g1, 3);
-        WordTo2DTree(word, new Vector3(5, 0, 5));
-        word = GenerateWord(g2, 3);
-        WordTo2DTree(word, new Vector3(5, 0, 0));
+
+        for (int x = 0; x < forestSize; x+= elementSpacing)
+        {
+            for (int z = 0; z < forestSize; z+= elementSpacing)
+            {
+                Vector3 position = new Vector3(x, 0f, z);
+                Vector3 offset = new Vector3(Random.Range(-0.75f, 0.75f), 0f, Random.Range(-0.75f, 0.75f));
+                Vector3 rotation = new Vector3(Random.Range(0, 5f), Random.Range(0, 360f), Random.Range(0, 5f));
+                Vector3 scale = Vector3.one * Random.Range(0.75f, 1.25f);
+
+                string word = GenerateWord(g1, 1);
+                WordTo2DTree(word, position);
+            }
+        }
+
+        //word = GenerateWord(g2, 3);
+        //WordTo2DTree(word, new Vector3(5, 0, 0));
+        
         //word = GenerateWord(g3, 1);
         //WordTo3DTree(word, Vector3.zero);
         //for (int i = 0; i < 50; i++)

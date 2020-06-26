@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using MoonSharp.Interpreter;
+using System.Collections;
 using System.Collections.Generic;
 using TreeEditor;
 using UnityEngine;
 
+[MoonSharpUserData]
 public class CustomNoiseScript : PBSNoiseScript
 {
     [Range(0, 999999)]
@@ -17,7 +19,7 @@ public class CustomNoiseScript : PBSNoiseScript
     //[Range(0, 20)]
     public int octavePlains;
 
-    [Range(0, 10)]
+    //[Range(0, 10)]
     public float lacunarityPlains;
 
 
@@ -33,7 +35,7 @@ public class CustomNoiseScript : PBSNoiseScript
     //[Range(0, 20)]
     public int octaveMountains;
 
-    [Range(0, 10)]
+    //[Range(0, 10)]
     public float lacunarityMountains;
 
 
@@ -49,17 +51,17 @@ public class CustomNoiseScript : PBSNoiseScript
     //[Range(0, 20)]
     public int octaveMask;
 
-    [Range(0, 10)]
+    //[Range(0, 10)]
     public float lacunarityMask;
 
 
-    [Range(0, 1)]
+    //[Range(0, 1)]
     public float falloffSelect;
 
-    [Range(-1, 1)]
+    //[Range(-1, 1)]
     public float thresholdSelect;
 
-    [Range(0, 4)]
+    //[Range(0, 4)]
     public int numStepsSelect;
 
     public SelectInterpType selectInterpType;
@@ -103,8 +105,6 @@ public class CustomNoiseScript : PBSNoiseScript
         PBSNoiseGenerator result = new SelectNoiseModule(fractalPlaineGenerator, fractalMountainsGenerator, maskGenerator, selectInterpType, falloffSelect, thresholdSelect, numStepsSelect);
         //return result;
 
-        /*PBSNoiseGenerator addGenerator = result + 1;
-        PBSNoiseGenerator scaleGenerator = new ScaleBiasNoiseModule(addGenerator, 0.5f, 0.0f);*/
         PBSNoiseGenerator zeroOneResult = new ZeroOneNoiseModule(result);
         PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(zeroOneResult, 0.2f, 0f);
 

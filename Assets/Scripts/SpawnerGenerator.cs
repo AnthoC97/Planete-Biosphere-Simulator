@@ -58,7 +58,7 @@ public class SpawnerGenerator : MonoBehaviour
         for (int i = 0; i < config.maxIteration; ++i)
         {
             Vector3 unitSphere = Random.onUnitSphere;
-            Debug.Log("Test : " + unitSphere);
+            //Debug.Log("Test : " + unitSphere);
             float elevation = planet.noiseGenerator.GetNoise3D(unitSphere);
             Vector3 pos = unitSphere * (1 + elevation) * planet.radius;
 
@@ -84,7 +84,7 @@ public class SpawnerGenerator : MonoBehaviour
         {
             if(count % 100 == 0)
             {
-                Debug.Log("OOOOOOOOOOOOOOOOK");
+                //Debug.Log("OOOOOOOOOOOOOOOOK");
                 //float x_old = pos.x, y_old = pos.y;
                 for (int x = 0; x < forestSize; x += elementSpacing)
                 {
@@ -125,7 +125,7 @@ public class SpawnerGenerator : MonoBehaviour
         string word = g.axiom;
         for (int i = 0; i < iterations; i++)
         {
-            Debug.Log(i);
+            //Debug.Log(i);
             string tmp = "";
             foreach (char c in word)
             {
@@ -134,7 +134,7 @@ public class SpawnerGenerator : MonoBehaviour
                 {
                     if (symbol == c)
                         tmp += g.P[j];
-                    Debug.Log(symbol);
+                    //Debug.Log(symbol);
                     j++;
                 }
                 if (c == '+' || c == '-' || c == '[' || c == ']')
@@ -168,10 +168,10 @@ public class SpawnerGenerator : MonoBehaviour
                         {
                             for (int k = 0; k < por.probs.Count; k++)
                             {
-                                Debug.Log("k : " + k + ", step : " + step + ", rdm : " + rdm + ", current prob + step : " + (por.probs[k] + step));
+                                //Debug.Log("k : " + k + ", step : " + step + ", rdm : " + rdm + ", current prob + step : " + (por.probs[k] + step));
                                 if (step < rdm && rdm <= por.probs[k] + step)
                                 {
-                                    Debug.Log("ooook : " + g.P[j + prob]);
+                                    //Debug.Log("ooook : " + g.P[j + prob]);
                                     tmp += g.P[j + prob];
                                     break;
                                 }
@@ -185,7 +185,7 @@ public class SpawnerGenerator : MonoBehaviour
                     tmp += c;
                 }
             }
-            Debug.Log("tmp : " + tmp);
+            //Debug.Log("tmp : " + tmp);
             word = tmp;
         }
         return word;
@@ -193,7 +193,7 @@ public class SpawnerGenerator : MonoBehaviour
 
     public void WordTo2DTree(string word, Vector3 pos, Quaternion rotation, float offset)
     {
-        Debug.Log(word);
+        //Debug.Log(word);
         Vector3 pivot = pos;
         Stack<Vector3> vectors_stack = new Stack<Vector3>();
         Stack<float> angles_stack = new Stack<float>();
@@ -212,14 +212,14 @@ public class SpawnerGenerator : MonoBehaviour
             }
             else if (c == 'A')
             {
-                Debug.Log("OOOOOK");
+                //Debug.Log("OOOOOK");
                 Instantiate(leaf, pivot, Quaternion.Euler(0, 0, angle));
                 pivot += rotation * Quaternion.Euler(0, 0, angle) * new Vector3(pivot.x, trunck_height, pivot.z);
                 ++i;
             }
             else if (c == 'B')
             {
-                Debug.Log("OK");
+                //Debug.Log("OK");
                 Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height * 1.5f, deltaAngle);
                 cylinder.CreateCylinder();
                 DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, rotation * Quaternion.Euler(0, 0, angle), pivot);
@@ -248,7 +248,7 @@ public class SpawnerGenerator : MonoBehaviour
     }
     public void WordTo3DTree(string word, Vector3 pos)
     {
-        Debug.Log(word);
+        //Debug.Log(word);
         Vector3 pivot = pos;
         Stack<Vector3> vectors_stack = new Stack<Vector3>();
         Stack<Vector3> angles_stack = new Stack<Vector3>();
@@ -269,7 +269,7 @@ public class SpawnerGenerator : MonoBehaviour
             }
             else if (c == 'B')
             {
-                Debug.Log("OK");
+                //Debug.Log("OK");
                 Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height * 1.5f, deltaAngle);
                 cylinder.CreateCylinder();
                 DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(l_angle, u_angle, h_angle), pivot);
@@ -284,7 +284,7 @@ public class SpawnerGenerator : MonoBehaviour
             }
             else if (c == 'S')
             {
-                Debug.Log("OK");
+                //Debug.Log("OK");
                 Cylinder cylinder = new Cylinder(pivot, base_radius, trunck_height * 0.5f, deltaAngle);
                 cylinder.CreateCylinder();
                 DrawMesh(i + "_mesh", cylinder.vertices, cylinder.uvs, cylinder.triangles, Quaternion.Euler(l_angle, u_angle, h_angle), pivot);

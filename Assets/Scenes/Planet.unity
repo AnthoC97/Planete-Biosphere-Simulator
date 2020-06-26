@@ -564,6 +564,8 @@ MonoBehaviour:
   debug: 0
   interval: 1
   populationSize: 200
+  selectedCount: 8
+  probaMutation: 0.2
   loopPointCount: 20
 --- !u!114 &1583251948
 MonoBehaviour:

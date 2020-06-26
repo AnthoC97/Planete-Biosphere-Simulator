@@ -14,6 +14,8 @@ public class GeneticNoise : MonoBehaviour
     [Min(0.5f)]
     public float interval = 1;
     public int populationSize = 10;
+    public int selectedCount = 8;
+    public float probaMutation = 0.2f;
 
     Planet planet;
     PBSNoiseScript noiseScript;
@@ -35,6 +37,11 @@ public class GeneticNoise : MonoBehaviour
     {
         // Store points before to speed up
         SetupScorerPoints();
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
     }
 
     void Start()
@@ -199,7 +206,7 @@ public class GeneticNoise : MonoBehaviour
 
     List<List<GeneticValue>> Selector()
     {
-        int nBest = Mathf.Min(notes.Count-1, 8);
+        int nBest = Mathf.Min(notes.Count-1, selectedCount);
         List<List<GeneticValue>> selections = new List<List<GeneticValue>>();
 
         for(int i=0; i<nBest; ++i)
@@ -224,8 +231,7 @@ public class GeneticNoise : MonoBehaviour
 
     List<GeneticValue> MutationOperator(List<GeneticValue> solution)
     {
-        float probaMutation = 0.2f;
-        if (probaMutation > UnityEngine.Random.value) return solution;
+        if (probaMutation < UnityEngine.Random.value) return solution;
         int randIndex = UnityEngine.Random.Range(0, solution.Count - 1);
         solution[randIndex].SetValue(solution[randIndex].GetRandomValue());
         return solution;

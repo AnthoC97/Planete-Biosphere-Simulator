@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using MoonSharp.Interpreter;
 
+[MoonSharpUserData]
 public class IA : MonoBehaviour
 {
 
@@ -20,6 +22,7 @@ public class IA : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        UserData.RegisterType<state>();
         hunger = 0;
         thirst = 0;
         stamina = 100;
@@ -153,7 +156,14 @@ public class IA : MonoBehaviour
 
     void DrinkWater(GameObject water)
     {
-        entity.AddAction(new ActionDrink(this, water));
+        //entity.AddAction(new ActionDrink(this, water));
+        ActionScripted action = new ActionScripted("drink.lua", gameObject);
+        Script converterScript = new Script();
+        action.SetGlobal("artificialIntelligence",
+                DynValue.FromObject(converterScript, this));
+        action.SetGlobal("water", DynValue.FromObject(converterScript, water));
+        action.SetGlobal("state", UserData.CreateStatic<state>());
+        entity.AddAction(action);
     }
 
     void EatFood(GameObject food)

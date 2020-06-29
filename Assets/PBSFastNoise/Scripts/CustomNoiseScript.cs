@@ -107,7 +107,7 @@ public class CustomNoiseScript : PBSNoiseScript
 
         PBSNoiseGenerator zeroOneResult = new ZeroOneNoiseModule(result);
         PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(zeroOneResult, 0.2f, 0f);
-
+        
         return scaleBiasGenerator;
     }
 

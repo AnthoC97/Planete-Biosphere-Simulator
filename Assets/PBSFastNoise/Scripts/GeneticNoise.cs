@@ -28,7 +28,7 @@ public class GeneticNoise : MonoBehaviour
     List<GeneticValue> bestSolution;
     float bestScore = Mathf.NegativeInfinity;
 
-    public int loopPointCount = 6;
+    public int NbSubdivision = 2;
 
     static Vector3[] scorerPoints;
     Script script;
@@ -257,35 +257,112 @@ public class GeneticNoise : MonoBehaviour
     private void SetupScorerPoints()
     {
         List<Vector3> listPoints = new List<Vector3>();
-        HashSet<string> hashPoints = new HashSet<string>();
-        float x, y, z, xy;                              // vertex position
 
-        float sectorStep = 2 * Mathf.PI / loopPointCount;
-        float stackStep = Mathf.PI / loopPointCount;
-        float sectorAngle, stackAngle;
+        // An icosahedron has 12 vertices, and
+        // since it's completely symmetrical the
+        // formula for calculating them is kind of
+        // symmetrical too:
 
-        for (int i = 0; i <= loopPointCount; ++i)
+        List<TriangleIndex> m_Polygons = new List<TriangleIndex>();
+
+        float t = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;
+
+        listPoints.Add(new Vector3(-1, t, 0).normalized);
+        listPoints.Add(new Vector3(1, t, 0).normalized);
+        listPoints.Add(new Vector3(-1, -t, 0).normalized);
+        listPoints.Add(new Vector3(1, -t, 0).normalized);
+        listPoints.Add(new Vector3(0, -1, t).normalized);
+        listPoints.Add(new Vector3(0, 1, t).normalized);
+        listPoints.Add(new Vector3(0, -1, -t).normalized);
+        listPoints.Add(new Vector3(0, 1, -t).normalized);
+        listPoints.Add(new Vector3(t, 0, -1).normalized);
+        listPoints.Add(new Vector3(t, 0, 1).normalized);
+        listPoints.Add(new Vector3(-t, 0, -1).normalized);
+        listPoints.Add(new Vector3(-t, 0, 1).normalized);
+
+        // And here's the formula for the 20 sides,
+        // referencing the 12 vertices we just created.
+        m_Polygons.Add(new TriangleIndex(0, 11, 5));
+        m_Polygons.Add(new TriangleIndex(0, 5, 1));
+        m_Polygons.Add(new TriangleIndex(0, 1, 7));
+        m_Polygons.Add(new TriangleIndex(0, 7, 10));
+        m_Polygons.Add(new TriangleIndex(0, 10, 11));
+        m_Polygons.Add(new TriangleIndex(1, 5, 9));
+        m_Polygons.Add(new TriangleIndex(5, 11, 4));
+        m_Polygons.Add(new TriangleIndex(11, 10, 2));
+        m_Polygons.Add(new TriangleIndex(10, 7, 6));
+        m_Polygons.Add(new TriangleIndex(7, 1, 8));
+        m_Polygons.Add(new TriangleIndex(3, 9, 4));
+        m_Polygons.Add(new TriangleIndex(3, 4, 2));
+        m_Polygons.Add(new TriangleIndex(3, 2, 6));
+        m_Polygons.Add(new TriangleIndex(3, 6, 8));
+        m_Polygons.Add(new TriangleIndex(3, 8, 9));
+        m_Polygons.Add(new TriangleIndex(4, 9, 5));
+        m_Polygons.Add(new TriangleIndex(2, 4, 11));
+        m_Polygons.Add(new TriangleIndex(6, 2, 10));
+        m_Polygons.Add(new TriangleIndex(8, 6, 7));
+        m_Polygons.Add(new TriangleIndex(9, 8, 1));
+
+        var midPointCache = new Dictionary<int, int>();
+
+        for (int i = 0; i < NbSubdivision; i++)
         {
-            stackAngle = Mathf.PI / 2 - i * stackStep;  // starting from pi/2 to -pi/2
-            xy = Mathf.Cos(stackAngle);                 // cos(u)
-            z = Mathf.Sin(stackAngle);                  // sin(u)
-
-            // add (sectorCount+1) vertices per stack
-            // the first and last vertices have same position and normal, but different tex coords
-            for (int j = 0; j <= loopPointCount; ++j)
+            var newPolys = new List<TriangleIndex>();
+            foreach (var poly in m_Polygons)
             {
-                sectorAngle = j * sectorStep;           // starting from 0 to 2pi
-
-                // vertex position (x, y, z)
-                x = xy * Mathf.Cos(sectorAngle);             // r * cos(u) * cos(v)
-                y = xy * Mathf.Sin(sectorAngle);             // r * cos(u) * sin(v)
-
-                Vector3 point = new Vector3(x, y, z);
-                if(hashPoints.Add(point.ToString()))
-                    listPoints.Add(point);
+                int a = poly.a;
+                int b = poly.b;
+                int c = poly.c;
+                // Use GetMidPointIndex to either create a
+                // new vertex between two old vertices, or
+                // find the one that was already created.
+                int ab = GetMidPointIndex(midPointCache, a, b, ref listPoints);
+                int bc = GetMidPointIndex(midPointCache, b, c, ref listPoints);
+                int ca = GetMidPointIndex(midPointCache, c, a, ref listPoints);
+                // Create the four new polygons using our original
+                // three vertices, and the three new midpoints.
+                newPolys.Add(new TriangleIndex(a, ab, ca));
+                newPolys.Add(new TriangleIndex(b, bc, ab));
+                newPolys.Add(new TriangleIndex(c, ca, bc));
+                newPolys.Add(new TriangleIndex(ab, bc, ca));
             }
+            // Replace all our old polygons with the new set of
+            // subdivided ones.
+            m_Polygons = newPolys;
         }
+
         scorerPoints = listPoints.ToArray();
+    }
+
+    public int GetMidPointIndex(Dictionary<int, int> cache, int indexA, int indexB, ref List<Vector3> listPoints)
+    {
+        // We create a key out of the two original indices
+        // by storing the smaller index in the upper two bytes
+        // of an integer, and the larger index in the lower two
+        // bytes. By sorting them according to whichever is smaller
+        // we ensure that this function returns the same result
+        // whether you call
+        // GetMidPointIndex(cache, 5, 9)
+        // or...
+        // GetMidPointIndex(cache, 9, 5)
+        int smallerIndex = Mathf.Min(indexA, indexB);
+        int greaterIndex = Mathf.Max(indexA, indexB);
+        int key = (smallerIndex << 16) + greaterIndex;
+        // If a midpoint is already defined, just return it.
+        int ret;
+        if (cache.TryGetValue(key, out ret))
+            return ret;
+        // If we're here, it's because a midpoint for these two
+        // vertices hasn't been created yet. Let's do that now!
+        Vector3 p1 = listPoints[indexA];
+        Vector3 p2 = listPoints[indexB];
+        Vector3 middle = Vector3.Lerp(p1, p2, 0.5f).normalized;
+
+        ret = listPoints.Count;
+        listPoints.Add(middle);
+
+        cache.Add(key, ret);
+        return ret;
     }
 
     public static Vector3[] GetScorerPoints()
@@ -301,6 +378,19 @@ public class GeneticNoise : MonoBehaviour
     public static bool IsInfinity(float value)
     {
         return float.IsInfinity(value);
+    }
+}
+
+public class TriangleIndex
+{
+    public int a;
+    public int b;
+    public int c;
+    public TriangleIndex(int a, int b, int c)
+    {
+        this.a = a;
+        this.b = b;
+        this.c = c;
     }
 }
 

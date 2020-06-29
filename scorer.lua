@@ -24,5 +24,5 @@ function getScore()
 end
 
 function isEndCriteria()
-	return bestScore == 0;
+	return bestScore >= 0;
 end

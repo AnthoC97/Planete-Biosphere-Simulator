@@ -1245,6 +1245,11 @@ PrefabInstance:
       propertyPath: currentState
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 4817932930726036680, guid: 6875d7bde8e6189459b5f9a21467f7a4,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4817932930726036681, guid: 6875d7bde8e6189459b5f9a21467f7a4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1381,6 +1386,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74150e306b843b916962d283fd5bb142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1954471852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1954471850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc6cad0a4855647b08373c75374d638f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptPath: rabbitAI.lua
 --- !u!4 &1954471856 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4817932930726036681, guid: 6875d7bde8e6189459b5f9a21467f7a4,

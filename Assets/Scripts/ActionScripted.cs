@@ -17,6 +17,7 @@ public class ActionScripted : Action
         UserData.RegisterType<Transform>();
         UserData.RegisterType<Color>();
         UserData.RegisterType<GameObject>();
+        UserData.RegisterType<LuaAPI>();
 
         if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
             luaScript = new Script();
@@ -29,9 +30,9 @@ public class ActionScripted : Action
                     Application.dataPath + "/?.lua" };
             luaScript.Options.DebugPrint = Debug.Log;
 
+            LuaAPI.Register(luaScript);
             luaScript.Globals["actor"] = actor;
-            luaScript.Globals["distance"] =
-                (Func<Vector3, Vector3, float>)Vector3.Distance;
+            luaScript.Globals["Vector3"] = typeof(Vector3);
             luaScript.Globals["destroy"] =
                 (Action<UnityEngine.Object>)GameObject.Destroy;
 

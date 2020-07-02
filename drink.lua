@@ -24,6 +24,6 @@ function canBeExecuted()
         return false;
     end
 
-    return distance(water.transform.position,
+    return Vector3.Distance(water.transform.position,
     artificialIntelligence.gameObject.transform.position) < 1;
 end

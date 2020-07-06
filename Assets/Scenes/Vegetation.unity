@@ -214,6 +214,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1066155760}
   - component: {fileID: 1066155759}
+  - component: {fileID: 1066155761}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -228,7 +229,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1066155758}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 878a0cb468ed9fa45808236b74d17bf2, type: 3}
   m_Name: 
@@ -242,6 +243,9 @@ MonoBehaviour:
   deltaAngle: 15
   base_angle: 18
   trunk_mat: {fileID: 2100000, guid: ecf7fe00577cb434c8d165f1fcd4b652, type: 2}
+  forestSize: 25
+  elementSpacing: 3
+  trees: []
 --- !u!4 &1066155760
 Transform:
   m_ObjectHideFlags: 0
@@ -256,6 +260,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1066155761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066155758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1520baf2a073e984ca53787767ed67c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grammars:
+  - {fileID: 11400000, guid: b7ebbc0cd7819444e88c00d9c2ecdc4b, type: 2}
+  forestSize: 25
+  elementSpacing: 3
+  leaf: {fileID: 1918718762059779754, guid: 1fe3349c383455a44beba9da6435b435, type: 3}
+  trunk_mat: {fileID: 2100000, guid: ecf7fe00577cb434c8d165f1fcd4b652, type: 2}
 --- !u!1 &1613579925
 GameObject:
   m_ObjectHideFlags: 0

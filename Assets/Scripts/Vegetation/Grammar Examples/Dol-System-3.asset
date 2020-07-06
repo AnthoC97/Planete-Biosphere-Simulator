@@ -19,3 +19,10 @@ MonoBehaviour:
   - F[+BA]F[-BA]+B
   - A
   V: 460042004100
+  tree_name: 
+  trunc_height: 2
+  trunc_radius: 0.2
+  delta_angle: 15
+  glucid: 1
+  water: 1
+  minerals: 1

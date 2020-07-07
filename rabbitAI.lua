@@ -1,24 +1,4 @@
-﻿state = {
-    wandering = 0,
-    drinking = 1,
-    feeding = 2,
-    searching_for_food = 3,
-    searching_for_water = 4,
-    going_to_sleep = 5,
-    sleeping = 6,
-    running = 7,
-    hiding = 8,
-    idle = 9,
-    hunting = 10,
-    dying = 11
-};
-
-local hunger = 0;
-local thirst = 0;
-local stamina = 100;
-local age = 2;
-local lifespawn = 6;
-local currentState = state.idle;
+﻿require "state";
 
 --public Text stateDisplay;
 --public Slider hungerJauge;
@@ -26,6 +6,19 @@ local currentState = state.idle;
 
 -- Start is called before the first frame update
 function start()
+    sharedContext["hunger"] = 0;
+    sharedContext["thirst"] = 0;
+    sharedContext["stamina"] = 100;
+    sharedContext["age"] = 2;
+    sharedContext["lifespawn"] = 6;
+    sharedContext["currentState"] = state.idle;
+
+    --sharedContext.hunger = 0;
+    --sharedContext.thirst = 0;
+    --sharedContext.stamina = 100;
+    --sharedContext.age = 2;
+    --sharedContext.lifespawn = 6;
+    --sharedContext.currentState = state.idle;
 end
 
 -- Update is called once per frame
@@ -37,10 +30,10 @@ function update()
 end
 
 function stats()
-    hunger = hunger + 0.2 * Time.deltaTime;
-    thirst = thirst + 0.5 * Time.deltaTime;
-    age = age + 1 / 365 * Time.deltaTime;
-    stamina = stamina - 1 * Time.deltaTime;
+    sharedContext["hunger"] = sharedContext["hunger"] + 0.2 * Time.deltaTime;
+    sharedContext["thirst"] = sharedContext["thirst"] + 0.5 * Time.deltaTime;
+    sharedContext["age"] = sharedContext["age"] + 1 / 365 * Time.deltaTime;
+    sharedContext["stamina"] = sharedContext["stamina"] - 1 * Time.deltaTime;
     check();
 
     if (Input.GetKeyDown(KeyCode.KeypadPlus)) then
@@ -52,22 +45,25 @@ function stats()
 end
 
 function check()
-    if (hunger >= 100 or thirst >= 100 or stamina <= 0) then
-        GameObject.Destroy(gameObject);
+    if (sharedContext["hunger"] >= 100 or sharedContext["thirst"] >= 100
+        or sharedContext["stamina"] <= 0) then
+        GO.Destroy(gameObject);
         return;
     end
 
     --if (currentState == state.idle) -- TODO If this doesn't work, check HasActionsQueued
     if (not entity.HasActionsQueued()) then
-        if (stamina < 30 and hunger < 80 and thirst < 75) then
-            currentState = state.going_to_sleep;
-        elseif (stamina < 5) then
+        if (sharedContext["stamina"] < 30 and sharedContext["hunger"] < 80
+            and sharedContext["thirst"] < 75) then
+            sharedContext["currentState"] = state.going_to_sleep;
+        elseif (sharedContext["stamina"] < 5) then
             --currentState = state.sleeping;
-            currentState = state.going_to_sleep;
-        elseif (thirst > 20) then
-            currentState = state.searching_for_water;
-        elseif (hunger > thirst and hunger > 20) then
-            currentState = state.searching_for_food;
+            sharedContext["currentState"] = state.going_to_sleep;
+        elseif (sharedContext["thirst"] > 20) then
+            sharedContext["currentState"] = state.searching_for_water;
+        elseif (sharedContext["hunger"] > sharedContext["thirst"]
+            and sharedContext["hunger"] > 20) then
+            sharedContext["currentState"] = state.searching_for_food;
         end
     end
 
@@ -75,41 +71,39 @@ function check()
 end
 
 function stateBehaviour()
-    if currentState == state.searching_for_water then
+    if sharedContext["currentState"] == state.searching_for_water then
         water = firstWithTagInSenseRange("Water");
         if water ~= nil then
             moveTowards(water);
             drinkWater(water);
-            currentState = state.drinking;
+            sharedContext["currentState"] = state.drinking;
         else
             if (not entity.HasActionsQueued()) then
                 wanderAround();
             end
         end
-    elseif currentState == state.searching_for_food then
+    elseif sharedContext["currentState"] == state.searching_for_food then
         food = firstWithTagInSenseRange("Food");
         if (food ~= nil) then
             moveTowards(food);
             eatFood(food);
-            currentState = state.feeding;
+            sharedContext["currentState"] = state.feeding;
         else
             if (not entity.HasActionsQueued()) then
                 wanderAround();
             end
         end
-    elseif currentState == state.going_to_sleep then
-        entity.AddAction(ActionGetAsleep.__new(this));
-        entity.AddAction(ActionSleep.__new(this));
-        currentState = state.sleeping;
+    elseif sharedContext["currentState"] == state.going_to_sleep then
+        --entity.AddAction(ActionGetAsleep.__new(this));
+        --entity.AddAction(ActionSleep.__new(this));
+        sharedContext["currentState"] = state.sleeping;
     end
 end
 
 function firstWithTagInSenseRange(tag)
     colliders = Physics.OverlapSphere(gameObject.transform.position, 10, 1);
 
-    print("#colliders: " .. #colliders);
-    for i = 0, #colliders do
-        print("type(colliders[" .. i .. "]): " .. type(colliders[i]));
+    for i = 1, #colliders do
         collided = colliders[i].gameObject;
         if (collided.name ~= gameObject.name and collided.CompareTag(tag)) then
             print(colliders[i].gameObject.transform.name);
@@ -127,12 +121,9 @@ end
 
 function drinkWater(water)
     --entity.AddAction(new ActionDrink(this, water));
-    action = new ActionScripted.__new("drink.lua", gameObject);
-    converterScript = Script.__new();
-    action.SetGlobal("artificialIntelligence",
-    DynValue.FromObject(converterScript, this));
-    action.SetGlobal("water", DynValue.FromObject(converterScript, water));
-    action.SetGlobal("state", state);
+    action = ActionScripted.__new("drink.lua", gameObject);
+    action.SetGlobal("artificialIntelligence", sharedContext);
+    action.SetGlobal("water", water);
     entity.AddAction(action);
 end
 
@@ -140,7 +131,7 @@ function eatFood(food)
     entity.AddAction(ActionEat.__new(this, food));
 end
 
-function WanderAround()
+function wanderAround()
     speed = .2;
 
     --Vector3 movement = gameObject.transform.forward * speed;
@@ -149,7 +140,7 @@ function WanderAround()
     angle = 1;
 
     actualPosition = gameObject.transform.position;
-    actualRotation = gameObject.transform.rotation;
+    --actualRotation = gameObject.transform.rotation;
 
     transform = gameObject.transform;
 

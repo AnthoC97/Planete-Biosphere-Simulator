@@ -1,4 +1,6 @@
 using System.IO;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using MoonSharp.Interpreter;
 
@@ -7,6 +9,8 @@ public class ScriptedBehaviour : MonoBehaviour
     private Script luaScript;
     public string scriptPath;
 
+    private Dictionary<string, DynValue> sharedContext;
+
     public void Awake()
     {
         Initialize();
@@ -14,7 +18,12 @@ public class ScriptedBehaviour : MonoBehaviour
 
     public void Initialize()
     {
+        sharedContext = new Dictionary<string, DynValue>();
+
         Script.GlobalOptions.RethrowExceptionNested = true;
+
+        UserData.RegisterProxyType<SharedContextProxy,
+            Dictionary<string, DynValue>>(r => new SharedContextProxy(r));
 
         UserData.RegisterAssembly();
         UserData.RegisterType<Vector3>();
@@ -29,8 +38,12 @@ public class ScriptedBehaviour : MonoBehaviour
         //UserData.RegisterType<PhysicsAPI>();
         UserData.RegisterType<Physics>();
         UserData.RegisterType<KeyCode>();
+        UserData.RegisterType<UnityEngine.Random>();
         UserData.RegisterType<Collider>();
-        UserData.RegisterType<SphereCollider>();
+        UserData.RegisterType<MoveAction>();
+        UserData.RegisterType<ActionScripted>();
+        UserData.RegisterType<ActionGetAsleep>();
+        UserData.RegisterType<ActionSleep>();
 
         if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
             luaScript = new Script();
@@ -39,19 +52,26 @@ public class ScriptedBehaviour : MonoBehaviour
 
             ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)
              luaScript.Options.ScriptLoader).ModulePaths =
-                new string[] { Application.dataPath + "/?",
+                new string[] { Application.dataPath + "/../?",
+                    Application.dataPath + "/?",
                     Application.dataPath + "/?.lua" };
             luaScript.Options.DebugPrint = Debug.Log;
 
             LuaAPI.Register(luaScript);
             luaScript.Globals["gameObject"] = gameObject;
+            luaScript.Globals["sharedContext"] = sharedContext;
             luaScript.Globals["Vector3"] = typeof(Vector3);
-            luaScript.Globals["GameObject"] = typeof(GameObject);
+            luaScript.Globals["GO"] = typeof(GameObject);
             luaScript.Globals["Time"] = typeof(Time);
             luaScript.Globals["Input"] = typeof(Input);
             //luaScript.Globals["PhysicsAPI"] = typeof(PhysicsAPI);
             luaScript.Globals["Physics"] = typeof(Physics);
             luaScript.Globals["KeyCode"] = UserData.CreateStatic<KeyCode>();
+            luaScript.Globals["Random"] = typeof(UnityEngine.Random);
+            luaScript.Globals["MoveAction"] = typeof(MoveAction);
+            luaScript.Globals["ActionScripted"] = typeof(ActionScripted);
+            luaScript.Globals["ActionGetAsleep"] = typeof(ActionGetAsleep);
+            luaScript.Globals["ActionSleep"] = typeof(ActionSleep);
 
             Entity entity = gameObject.GetComponent<Entity>();
             if (entity != null) {

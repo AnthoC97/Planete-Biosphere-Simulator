@@ -1,3 +1,5 @@
+require("state");
+
 framesToDrink = 10;
 local framesElapsed = 0;
 
@@ -10,8 +12,8 @@ function execute()
     framesElapsed = framesElapsed + 1;
 
     if framesElapsed > framesToDrink then
-        artificialIntelligence.thirst = 0;
-        artificialIntelligence.currentState = state.idle;
+        artificialIntelligence["thirst"] = 0;
+        artificialIntelligence["currentState"] = state.idle;
         destroy(water);
         return true, true;
     end
@@ -25,5 +27,5 @@ function canBeExecuted()
     end
 
     return Vector3.Distance(water.transform.position,
-    artificialIntelligence.gameObject.transform.position) < 1;
+                            actor.transform.position) < 1;
 end

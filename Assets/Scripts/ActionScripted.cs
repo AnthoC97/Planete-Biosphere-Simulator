@@ -42,15 +42,33 @@ public class ActionScripted : Action
 
     public override (bool done, bool result) Execute()
     {
-        DynValue ret = luaScript.Call(luaScript.Globals["execute"]);
-        return (ret.Tuple[0].Boolean, ret.Tuple[1].Boolean);
+        try {
+            DynValue ret = luaScript.Call(luaScript.Globals["execute"]);
+            return (ret.Tuple[0].Boolean, ret.Tuple[1].Boolean);
+        } catch (ScriptRuntimeException ex) {
+            Debug.LogError("[Execute] Could not execute function: "
+                    + ex.DecoratedMessage);
+        } catch (SyntaxErrorException ex) {
+            Debug.LogError("[Execute] Could not execute function: "
+                    + ex.DecoratedMessage);
+        }
 
-        //populationSize = (int)luaScript.Globals.Get("populationSize").Number;
+        return (true, false);
     }
 
     public override bool CanBeExecuted()
     {
-        return luaScript.Call(luaScript.Globals["canBeExecuted"]).Boolean;
+        try {
+            return luaScript.Call(luaScript.Globals["canBeExecuted"]).Boolean;
+        } catch (ScriptRuntimeException ex) {
+            Debug.LogError("[CanBeExecuted] Could not execute function: "
+                    + ex.DecoratedMessage);
+        } catch (SyntaxErrorException ex) {
+            Debug.LogError("[CanBeExecuted] Could not execute function: "
+                    + ex.DecoratedMessage);
+        }
+
+        return false;
     }
 
     public override void Cancel()

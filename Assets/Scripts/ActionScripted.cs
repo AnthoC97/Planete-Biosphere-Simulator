@@ -58,6 +58,10 @@ public class ActionScripted : Action
 
     public override bool CanBeExecuted()
     {
+        if (luaScript.Globals["canBeExecuted"] == null) {
+            return true;
+        }
+
         try {
             return luaScript.Call(luaScript.Globals["canBeExecuted"]).Boolean;
         } catch (ScriptRuntimeException ex) {

@@ -65,6 +65,8 @@ public class ScriptedBehaviour : MonoBehaviour
             luaScript.Globals["sharedContext"] = sharedContext;
             luaScript.Globals["Vector3"] = typeof(Vector3);
             luaScript.Globals["GO"] = typeof(GameObject);
+            luaScript.Globals["destroy"] =
+                (Action<UnityEngine.Object>)GameObject.Destroy;
             luaScript.Globals["Time"] = typeof(Time);
             luaScript.Globals["Input"] = typeof(Input);
             //luaScript.Globals["PhysicsAPI"] = typeof(PhysicsAPI);

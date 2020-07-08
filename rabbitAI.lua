@@ -47,7 +47,7 @@ end
 function check()
     if (sharedContext["hunger"] >= 100 or sharedContext["thirst"] >= 100
         or sharedContext["stamina"] <= 0) then
-        GO.Destroy(gameObject);
+        destroy(gameObject);
         return;
     end
 
@@ -137,7 +137,11 @@ function drinkWater(water)
 end
 
 function eatFood(food)
-    entity.AddAction(ActionEat.__new(this, food));
+    --entity.AddAction(ActionEat.__new(this, food));
+    action = ActionScripted.__new("eat.lua", gameObject);
+    action.SetGlobal("artificialIntelligence", sharedContext);
+    action.SetGlobal("food", food);
+    entity.AddAction(action);
 end
 
 function wanderAround()

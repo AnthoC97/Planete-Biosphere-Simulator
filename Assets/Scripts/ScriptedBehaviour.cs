@@ -44,6 +44,8 @@ public class ScriptedBehaviour : MonoBehaviour
         UserData.RegisterType<ActionScripted>();
         UserData.RegisterType<ActionGetAsleep>();
         UserData.RegisterType<ActionSleep>();
+        UserData.RegisterType<ActionExecuteAfterDelay>();
+        UserData.RegisterType<Script>();
 
         if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
             luaScript = new Script();
@@ -58,6 +60,7 @@ public class ScriptedBehaviour : MonoBehaviour
             luaScript.Options.DebugPrint = Debug.Log;
 
             LuaAPI.Register(luaScript);
+            luaScript.Globals["this"] = luaScript;
             luaScript.Globals["gameObject"] = gameObject;
             luaScript.Globals["sharedContext"] = sharedContext;
             luaScript.Globals["Vector3"] = typeof(Vector3);
@@ -72,6 +75,8 @@ public class ScriptedBehaviour : MonoBehaviour
             luaScript.Globals["ActionScripted"] = typeof(ActionScripted);
             luaScript.Globals["ActionGetAsleep"] = typeof(ActionGetAsleep);
             luaScript.Globals["ActionSleep"] = typeof(ActionSleep);
+            luaScript.Globals["ActionExecuteAfterDelay"] =
+                typeof(ActionExecuteAfterDelay);
 
             Entity entity = gameObject.GetComponent<Entity>();
             if (entity != null) {

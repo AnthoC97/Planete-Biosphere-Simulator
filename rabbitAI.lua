@@ -95,9 +95,18 @@ function stateBehaviour()
         end
     elseif sharedContext["currentState"] == state.going_to_sleep then
         --entity.AddAction(ActionGetAsleep.__new(this));
+        local action = ActionExecuteAfterDelay.__new(10, "putToSleep", this);
+        entity.AddAction(action);
         --entity.AddAction(ActionSleep.__new(this));
-        sharedContext["currentState"] = state.sleeping;
+        action = ActionScripted.__new("sleep.lua", gameObject);
+        action.SetGlobal("sharedContext", sharedContext);
+        entity.AddAction(action);
+        --sharedContext["currentState"] = state.sleeping;
     end
+end
+
+function putToSleep()
+    sharedContext["currentState"] = state.sleeping;
 end
 
 function firstWithTagInSenseRange(tag)

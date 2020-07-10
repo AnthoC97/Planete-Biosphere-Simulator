@@ -47,7 +47,7 @@ public class FastNoise
     public enum Interp { Linear, Hermite, Quintic };
     public enum FractalType { FBM, Billow, RigidMulti };
     public enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
-    public enum CellularReturnType { CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
+    public enum CellularReturnType { CellValue,/* NoiseLookup, */Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
 
     private int m_seed = 1337;
     private FN_DECIMAL m_frequency = (FN_DECIMAL)0.01;
@@ -485,7 +485,7 @@ public class FastNoise
                 switch (m_cellularReturnType)
                 {
                     case CellularReturnType.CellValue:
-                    case CellularReturnType.NoiseLookup:
+                    //case CellularReturnType.NoiseLookup:
                     case CellularReturnType.Distance:
                         return SingleCellular(x, y, z);
                     default:
@@ -565,7 +565,7 @@ public class FastNoise
                 switch (m_cellularReturnType)
                 {
                     case CellularReturnType.CellValue:
-                    case CellularReturnType.NoiseLookup:
+                    //case CellularReturnType.NoiseLookup:
                     case CellularReturnType.Distance:
                         return SingleCellular(x, y);
                     default:
@@ -1805,7 +1805,7 @@ public class FastNoise
         switch (m_cellularReturnType)
         {
             case CellularReturnType.CellValue:
-            case CellularReturnType.NoiseLookup:
+            //case CellularReturnType.NoiseLookup:
             case CellularReturnType.Distance:
                 return SingleCellular(x, y, z);
             default:
@@ -1909,10 +1909,10 @@ public class FastNoise
             case CellularReturnType.CellValue:
                 return ValCoord3D(m_seed, xc, yc, zc);
 
-            case CellularReturnType.NoiseLookup:
+            /*case CellularReturnType.NoiseLookup:
                 Float3 vec = CELL_3D[Hash3D(m_seed, xc, yc, zc) & 255];
                 return m_cellularNoiseLookup.GetNoise(xc + vec.x * m_cellularJitter, yc + vec.y * m_cellularJitter, zc + vec.z * m_cellularJitter);
-
+*/
             case CellularReturnType.Distance:
                 return distance;
             default:
@@ -2025,7 +2025,7 @@ public class FastNoise
         switch (m_cellularReturnType)
         {
             case CellularReturnType.CellValue:
-            case CellularReturnType.NoiseLookup:
+            //case CellularReturnType.NoiseLookup:
             case CellularReturnType.Distance:
                 return SingleCellular(x, y);
             default:
@@ -2114,10 +2114,10 @@ public class FastNoise
             case CellularReturnType.CellValue:
                 return ValCoord2D(m_seed, xc, yc);
 
-            case CellularReturnType.NoiseLookup:
+            /*case CellularReturnType.NoiseLookup:
                 Float2 vec = CELL_2D[Hash2D(m_seed, xc, yc) & 255];
                 return m_cellularNoiseLookup.GetNoise(xc + vec.x * m_cellularJitter, yc + vec.y * m_cellularJitter);
-
+*/
             case CellularReturnType.Distance:
                 return distance;
             default:

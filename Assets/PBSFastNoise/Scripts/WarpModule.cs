@@ -37,10 +37,13 @@ public class WarpModule : PBSNoiseGenerator
         this.warpModule = warpModule;
         this.Iteration1XOffset = 1.6f;
         this.Iteration1YOffset = 2.5f;
+        this.Iteration1ZOffset = 0;
         this.Iteration2XOffset1 = 5.7f;
         this.Iteration2YOffset1 = 3.4f;
+        this.Iteration2ZOffset1 = 0;
         this.Iteration2XOffset2 = 2.1f;
         this.Iteration2YOffset2 = 3.5f;
+        this.Iteration2ZOffset2 = 0;
         this.Multiplier = multiplier;
         this.WarpIterations = warpIterations;
     }

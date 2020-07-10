@@ -168,8 +168,18 @@ public class GeneticNoise : MonoBehaviour
             }
             else if(fieldInfo.FieldType.IsEnum)
             {
+                int min = 0;
                 int max = fieldInfo.FieldType.GetEnumValues().Length-1;
-                solution.Add(new EnumGenetic(UnityEngine.Random.Range(0, max), 0, max, fieldInfo.Name));
+                foreach (Attribute attribute in fieldInfo.GetCustomAttributes())
+                {
+                    switch (attribute)
+                    {
+                        case MinAttribute mina:
+                            min = (int)mina.min;
+                            break;
+                    }
+                }
+                solution.Add(new EnumGenetic(UnityEngine.Random.Range(0, max), min, max, fieldInfo.Name));
             }
         }
         return solution;

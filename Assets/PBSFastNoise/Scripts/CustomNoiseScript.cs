@@ -11,7 +11,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 10)]
     public float frequencyPlains;
 
-    [Range(0f, 2)]
+    //[Range(0f, 2)]
     public float fractalGainPlains;
 
     //[Range(0, 20)]
@@ -27,7 +27,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 10)]
     public float frequencyMountains;
 
-    [Range(0, 2)]
+    //[Range(0, 2)]
     public float fractalGainMountains;
 
     //[Range(0, 20)]
@@ -44,7 +44,7 @@ public class CustomNoiseScript : PBSNoiseScript
     [Range(0, 10)]
     public float frequencyMask;
 
-    [Range(0, 2)]
+    //[Range(0, 2)]
     public float fractalGainMask;
 
     //[Range(0, 20)]
@@ -77,6 +77,39 @@ public class CustomNoiseScript : PBSNoiseScript
     public FastNoise.Interp interpMask;
     public FastNoise.FractalType fractalTypeMask;
 
+    /*[Range(0, 999999)]
+    public int seedCellular;
+
+    [Range(0, 10)]
+    public float frequencyCellular;
+
+    public FastNoise.CellularDistanceFunction cellularDistanceFunc;
+    [Min(1)]
+    public FastNoise.CellularReturnType cellularReturnType;
+
+    // Select cell mask
+    [Range(0, 999999)]
+    public int seedCellMask;
+
+    [Range(0, 10)]
+    public float frequencyCellMask;
+
+    public FractalNoiseType fractalNoiseTypeCellMask;
+    public FastNoise.Interp interpCellMask;
+    public FastNoise.FractalType fractalTypeCellMask;
+
+    //[Range(0, 1)]
+    public float falloffSelectCell;
+
+    //[Range(-1, 1)]
+    public float thresholdSelectCell;
+
+    //[Range(0, 4)]
+    public int numStepsSelectCell;
+
+    public SelectInterpType selectInterpTypeCell;*/
+
+
     public override PBSNoiseGenerator GetNoiseGenerator()
     {
         //return 5000; // Constant Exemple
@@ -101,6 +134,11 @@ public class CustomNoiseScript : PBSNoiseScript
 
         PBSNoiseGenerator result = new SelectNoiseModule(fractalPlaineGenerator, fractalMountainsGenerator, maskGenerator, selectInterpType, falloffSelect, thresholdSelect, numStepsSelect);
 
+        /*PBSNoiseGenerator cellular = new CellularNoiseGenerator(seedCellular, frequencyCellular, cellularDistanceFunc, cellularReturnType);
+        PBSNoiseGenerator maskCellGenerator = new FractalNoiseGenerator(fractalNoiseTypeCellMask, seedCellMask, frequencyCellMask, 0, interpCellMask, fractalTypeCellMask, 0, 0);
+
+        PBSNoiseGenerator res2 = new SelectNoiseModule(result, cellular, maskCellGenerator, selectInterpTypeCell, falloffSelectCell, thresholdSelectCell, numStepsSelectCell);
+        */
         PBSNoiseGenerator zeroOneResult = new ZeroOneNoiseModule(result);
 
         //PBSNoiseGenerator warpGen = new WarpModule(zeroOneResult, zeroOneResult, 0.5f, WarpIterationsType.Two);

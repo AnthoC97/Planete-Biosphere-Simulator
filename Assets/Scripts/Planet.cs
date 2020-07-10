@@ -70,6 +70,8 @@ public class Planet : MonoBehaviour
         if(waterPercent > 0.0f)
         {
             waterMesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            waterMesh.name = "WaterSphere";
+            waterMesh.transform.SetParent(transform);
             waterMesh.transform.localScale = Vector3.one * (radius +radius*waterPercent) * 2;
             MeshRenderer mr = waterMesh.GetComponent<MeshRenderer>();
             mr.sharedMaterial = waterMaterial;

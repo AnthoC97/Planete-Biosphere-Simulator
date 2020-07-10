@@ -94,6 +94,12 @@ public class Planet : MonoBehaviour
 
     private void Initialize()
     {
+        if(StaticSettings.useStaticSettings)
+        {
+            radius = StaticSettings.planetRadius;
+            waterPercent = StaticSettings.waterPercent;
+        }
+
         if (meshFilters == null || meshFilters.Length == 0)
         {
             meshFilters = new MeshFilter[6];

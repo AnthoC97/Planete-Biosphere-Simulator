@@ -58,6 +58,15 @@ public class GeneticNoise : MonoBehaviour
         noiseScript = GetComponent<PBSNoiseScript>();
         if (!noiseScript) return;
 
+        if(StaticSettings.useStaticSettings)
+        {
+            interval = StaticSettings.planetIntervalBeforeNewGeneration;
+            populationSize = StaticSettings.planetPopulationSize;
+            selectedCount = StaticSettings.planetSelectedCount;
+            probaMutation = StaticSettings.planetProbaMutation;
+            NbSubdivision = StaticSettings.planetIcosahedronSubDiv;
+        }
+
         //Recupération de l'objet System.Type représentant le type sous-jacent de l'objet
         Type objectType = noiseScript.GetType();
 
@@ -66,7 +75,7 @@ public class GeneticNoise : MonoBehaviour
 
         // Setup script lua
         script = null;
-        if (File.Exists(Application.dataPath + "/../scorer.lua"))
+        if (File.Exists(StaticSettings.planetScript))
         {
             UserData.RegisterAssembly();
             UserData.RegisterType<Vector3>();

@@ -23,17 +23,35 @@ end
 
 -- Update is called once per frame
 function update()
+    localSharedContext = {};
+    localSharedContext["hunger"] = sharedContext["hunger"];
+    localSharedContext["thirst"] = sharedContext["thirst"];
+    localSharedContext["stamina"] = sharedContext["stamina"];
+    localSharedContext["age"] = sharedContext["age"];
+    localSharedContext["lifespawn"] = sharedContext["lifespawn"];
+    localSharedContext["currentState"] = sharedContext["currentState"];
+    --globalSharedContext = sharedContext;
+    --sharedContext = localSharedContext;
+
     stats();
+
+    sharedContext["hunger"] = localSharedContext["hunger"];
+    sharedContext["thirst"] = localSharedContext["thirst"];
+    sharedContext["stamina"] = localSharedContext["stamina"];
+    sharedContext["age"] = localSharedContext["age"];
+    sharedContext["lifespawn"] = localSharedContext["lifespawn"];
+    sharedContext["currentState"] = localSharedContext["currentState"];
+
     --hungerJauge.value = 100 - hunger;
     --thirstJauge.value = 100 - thirst;
     --stateDisplay.text = currentState.ToString();
 end
 
 function stats()
-    sharedContext["hunger"] = sharedContext["hunger"] + 0.2 * Time.deltaTime;
-    sharedContext["thirst"] = sharedContext["thirst"] + 0.5 * Time.deltaTime;
-    sharedContext["age"] = sharedContext["age"] + 1 / 365 * Time.deltaTime;
-    sharedContext["stamina"] = sharedContext["stamina"] - 1 * Time.deltaTime;
+    localSharedContext["hunger"] = localSharedContext["hunger"] + 0.2 * Time.deltaTime;
+    localSharedContext["thirst"] = localSharedContext["thirst"] + 0.5 * Time.deltaTime;
+    localSharedContext["age"] = localSharedContext["age"] + 1 / 365 * Time.deltaTime;
+    localSharedContext["stamina"] = localSharedContext["stamina"] - 1 * Time.deltaTime;
     check();
 
     if (Input.GetKeyDown(KeyCode.KeypadPlus)) then
@@ -45,25 +63,25 @@ function stats()
 end
 
 function check()
-    if (sharedContext["hunger"] >= 100 or sharedContext["thirst"] >= 100
-        or sharedContext["stamina"] <= 0) then
+    if (localSharedContext["hunger"] >= 100 or localSharedContext["thirst"] >= 100
+        or localSharedContext["stamina"] <= 0) then
         destroy(gameObject);
         return;
     end
 
     --if (currentState == state.idle) -- TODO If this doesn't work, check HasActionsQueued
     if (not entity.HasActionsQueued()) then
-        if (sharedContext["stamina"] < 30 and sharedContext["hunger"] < 80
-            and sharedContext["thirst"] < 75) then
-            sharedContext["currentState"] = state.going_to_sleep;
-        elseif (sharedContext["stamina"] < 5) then
+        if (localSharedContext["stamina"] < 30 and localSharedContext["hunger"] < 80
+            and localSharedContext["thirst"] < 75) then
+            localSharedContext["currentState"] = state.going_to_sleep;
+        elseif (localSharedContext["stamina"] < 5) then
             --currentState = state.sleeping;
-            sharedContext["currentState"] = state.going_to_sleep;
-        elseif (sharedContext["thirst"] > 20) then
-            sharedContext["currentState"] = state.searching_for_water;
-        elseif (sharedContext["hunger"] > sharedContext["thirst"]
-            and sharedContext["hunger"] > 20) then
-            sharedContext["currentState"] = state.searching_for_food;
+            localSharedContext["currentState"] = state.going_to_sleep;
+        elseif (localSharedContext["thirst"] > 20) then
+            localSharedContext["currentState"] = state.searching_for_water;
+        elseif (localSharedContext["hunger"] > localSharedContext["thirst"]
+            and localSharedContext["hunger"] > 20) then
+            localSharedContext["currentState"] = state.searching_for_food;
         end
     end
 
@@ -71,29 +89,29 @@ function check()
 end
 
 function stateBehaviour()
-    if sharedContext["currentState"] == state.searching_for_water then
+    if localSharedContext["currentState"] == state.searching_for_water then
         water = firstWithTagInSenseRange("Water");
         if water ~= nil then
             moveTowards(water);
             drinkWater(water);
-            sharedContext["currentState"] = state.drinking;
+            localSharedContext["currentState"] = state.drinking;
         else
             if (not entity.HasActionsQueued()) then
                 wanderAround();
             end
         end
-    elseif sharedContext["currentState"] == state.searching_for_food then
+    elseif localSharedContext["currentState"] == state.searching_for_food then
         food = firstWithTagInSenseRange("Food");
         if (food ~= nil) then
             moveTowards(food);
             eatFood(food);
-            sharedContext["currentState"] = state.feeding;
+            localSharedContext["currentState"] = state.feeding;
         else
             if (not entity.HasActionsQueued()) then
                 wanderAround();
             end
         end
-    elseif sharedContext["currentState"] == state.going_to_sleep then
+    elseif localSharedContext["currentState"] == state.going_to_sleep then
         --entity.AddAction(ActionGetAsleep.__new(this));
         local action = ActionExecuteAfterDelay.__new(10, "putToSleep", this);
         entity.AddAction(action);

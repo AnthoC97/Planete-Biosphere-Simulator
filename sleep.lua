@@ -1,14 +1,18 @@
 require("state");
 
 function execute()
-    if (sharedContext["stamina"] < 100) then
-        sharedContext["stamina"] = sharedContext["stamina"] + 1;
+    local editableContext = sharedContext.GetEditable();
+
+    if (editableContext["stamina"] < 100) then
+        editableContext["stamina"] = editableContext["stamina"] + 1;
     end
 
-    if (sharedContext["stamina"] >= 100) then
-        sharedContext["currentState"] = state.idle;
+    if (editableContext["stamina"] >= 100) then
+        editableContext["currentState"] = state.idle;
+        sharedContext.Synchronize(editableContext);
         return true, true;
     end
 
+    sharedContext.Synchronize(editableContext);
     return false, false;
 end

@@ -6,12 +6,16 @@
 
 -- Start is called before the first frame update
 function start()
-    sharedContext["hunger"] = 0;
-    sharedContext["thirst"] = 0;
-    sharedContext["stamina"] = 100;
-    sharedContext["age"] = 2;
-    sharedContext["lifespawn"] = 6;
-    sharedContext["currentState"] = state.idle;
+    localSharedContext = sharedContext.GetEditable();
+
+    localSharedContext["hunger"] = 0;
+    localSharedContext["thirst"] = 0;
+    localSharedContext["stamina"] = 100;
+    localSharedContext["age"] = 2;
+    localSharedContext["lifespawn"] = 6;
+    localSharedContext["currentState"] = state.idle;
+
+    sharedContext.Synchronize(localSharedContext);
 
     --sharedContext.hunger = 0;
     --sharedContext.thirst = 0;
@@ -23,24 +27,11 @@ end
 
 -- Update is called once per frame
 function update()
-    localSharedContext = {};
-    localSharedContext["hunger"] = sharedContext["hunger"];
-    localSharedContext["thirst"] = sharedContext["thirst"];
-    localSharedContext["stamina"] = sharedContext["stamina"];
-    localSharedContext["age"] = sharedContext["age"];
-    localSharedContext["lifespawn"] = sharedContext["lifespawn"];
-    localSharedContext["currentState"] = sharedContext["currentState"];
-    --globalSharedContext = sharedContext;
-    --sharedContext = localSharedContext;
+    localSharedContext = sharedContext.GetEditable();
 
     stats();
 
-    sharedContext["hunger"] = localSharedContext["hunger"];
-    sharedContext["thirst"] = localSharedContext["thirst"];
-    sharedContext["stamina"] = localSharedContext["stamina"];
-    sharedContext["age"] = localSharedContext["age"];
-    sharedContext["lifespawn"] = localSharedContext["lifespawn"];
-    sharedContext["currentState"] = localSharedContext["currentState"];
+    sharedContext.Synchronize(localSharedContext);
 
     --hungerJauge.value = 100 - hunger;
     --thirstJauge.value = 100 - thirst;
@@ -124,7 +115,9 @@ function stateBehaviour()
 end
 
 function putToSleep()
-    sharedContext["currentState"] = state.sleeping;
+    local editableContext = sharedContext.GetEditable();
+    editableContext["currentState"] = state.sleeping;
+    sharedContext.Synchronize(editableContext);
 end
 
 function firstWithTagInSenseRange(tag)

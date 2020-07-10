@@ -9,7 +9,7 @@ public class ScriptedBehaviour : MonoBehaviour
     private Script luaScript;
     public string scriptPath;
 
-    private Dictionary<string, DynValue> sharedContext;
+    public Dictionary<string, DynValue> sharedContext;
 
     public void Awake()
     {
@@ -21,9 +21,6 @@ public class ScriptedBehaviour : MonoBehaviour
         sharedContext = new Dictionary<string, DynValue>();
 
         Script.GlobalOptions.RethrowExceptionNested = true;
-
-        UserData.RegisterProxyType<SharedContextProxy,
-            Dictionary<string, DynValue>>(r => new SharedContextProxy(r));
 
         UserData.RegisterAssembly();
         UserData.RegisterType<Vector3>();
@@ -46,6 +43,7 @@ public class ScriptedBehaviour : MonoBehaviour
         UserData.RegisterType<ActionSleep>();
         UserData.RegisterType<ActionExecuteAfterDelay>();
         UserData.RegisterType<Script>();
+        UserData.RegisterType<SharedContextProxy>();
 
         if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
             luaScript = new Script();
@@ -62,7 +60,8 @@ public class ScriptedBehaviour : MonoBehaviour
             LuaAPI.Register(luaScript);
             luaScript.Globals["this"] = luaScript;
             luaScript.Globals["gameObject"] = gameObject;
-            luaScript.Globals["sharedContext"] = sharedContext;
+            luaScript.Globals["sharedContext"] =
+                new SharedContextProxy(sharedContext, luaScript);
             luaScript.Globals["Vector3"] = typeof(Vector3);
             luaScript.Globals["GO"] = typeof(GameObject);
             luaScript.Globals["destroy"] =

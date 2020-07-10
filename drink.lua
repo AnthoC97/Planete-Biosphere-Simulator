@@ -12,8 +12,10 @@ function execute()
     framesElapsed = framesElapsed + 1;
 
     if framesElapsed > framesToDrink then
-        artificialIntelligence["thirst"] = 0;
-        artificialIntelligence["currentState"] = state.idle;
+        local editableContext = artificialIntelligence.GetEditable();
+        editableContext["thirst"] = 0;
+        editableContext["currentState"] = state.idle;
+        artificialIntelligence.Synchronize(editableContext);
         destroy(water);
         return true, true;
     end

@@ -12,8 +12,10 @@ function execute()
     framesElapsed = framesElapsed + 1;
 
     if framesElapsed > framesToEat then
-        artificialIntelligence["hunger"] = 0;
-        artificialIntelligence["currentState"] = state.idle;
+        local editableContext = artificialIntelligence.GetEditable();
+        editableContext["hunger"] = 0;
+        editableContext["currentState"] = state.idle;
+        artificialIntelligence.Synchronize(editableContext);
         destroy(food);
         return true, true;
     end

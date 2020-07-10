@@ -24,7 +24,6 @@ public class GeneticNoise : MonoBehaviour
     List<List<GeneticValue>> solutions;
     List<float> notes;
 
-    PBSNoiseGenerator bestNoiseGenerator;
     List<GeneticValue> bestSolution;
     float bestScore = Mathf.NegativeInfinity;
 
@@ -41,7 +40,16 @@ public class GeneticNoise : MonoBehaviour
 
     private void OnDisable()
     {
+        if (!planet.GetIstUsingNoiseGenetic()) return;
         StopAllCoroutines();
+
+        // Apply best solution
+        foreach (GeneticValue geneticVal in bestSolution)
+        {
+            geneticVal.ApplyValue(noiseScript);
+        }
+        planet.UpdateNoiseGenerator();
+        planet.SetIsUsingNoiseGenetic(false);
     }
 
     void Start()
@@ -116,6 +124,12 @@ public class GeneticNoise : MonoBehaviour
             }
         }
 
+        // Apply best solution
+        foreach (GeneticValue geneticVal in bestSolution)
+        {
+            geneticVal.ApplyValue(noiseScript);
+        }
+        planet.UpdateNoiseGenerator();
         planet.SetIsUsingNoiseGenetic(false);
     }
 
@@ -183,10 +197,9 @@ public class GeneticNoise : MonoBehaviour
         {
             bestScore = score;
             bestSolution = solution;
-            bestNoiseGenerator = noiseScript.GetNoiseGenerator();
             if(script != null) script.Globals["bestScore"] = bestScore;
             print("new best score: "+ bestScore);
-            planet.UpdateNoiseGenerator(bestNoiseGenerator);
+            planet.UpdateNoiseGenerator();
         }
 
         return score;
@@ -241,13 +254,11 @@ public class GeneticNoise : MonoBehaviour
     {
         if (!debug) return;
 
-        if (bestNoiseGenerator == null) return;
-
         Gizmos.color = Color.green;
-
+        PBSNoiseGenerator NoiseGenerator = planet.noiseGenerator;
         foreach (Vector3 point in scorerPoints)
         {
-            float elevation = bestNoiseGenerator.GetNoise3D(point);
+            float elevation = NoiseGenerator.GetNoise3D(point);
             elevation = Mathf.Clamp(elevation, 0, 1);
             if (float.IsNaN(elevation)) elevation = 0;
             Gizmos.DrawWireSphere(point * (1 + elevation) * planet.radius, 1.0f);

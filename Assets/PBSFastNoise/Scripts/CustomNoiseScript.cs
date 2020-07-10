@@ -1,12 +1,10 @@
 ﻿using MoonSharp.Interpreter;
-using System.Collections;
-using System.Collections.Generic;
-using TreeEditor;
 using UnityEngine;
 
 [MoonSharpUserData]
 public class CustomNoiseScript : PBSNoiseScript
 {
+    // Plains
     [Range(0, 999999)]
     public int seedPlains;
 
@@ -22,7 +20,7 @@ public class CustomNoiseScript : PBSNoiseScript
     //[Range(0, 10)]
     public float lacunarityPlains;
 
-
+    // Mountains
     [Range(0, 10)]
     public int seedMountains;
 
@@ -39,6 +37,7 @@ public class CustomNoiseScript : PBSNoiseScript
     public float lacunarityMountains;
 
 
+    // Select mask
     [Range(0, 999999)]
     public int seedMask;
 
@@ -92,22 +91,21 @@ public class CustomNoiseScript : PBSNoiseScript
 
         PBSNoiseGenerator gen = fractalGenerator + 4;
 
-        PBSNoiseGenerator scaleModule = new ScaleBiasNoiseModule(fractalGenerator, 10, 0); // scale fractal by 10
-        return scaleModule;*/
+        PBSNoiseGenerator scaleModule = new ScaleBiasNoiseModule(fractalGenerator, 10, 0); // scale fractal by 10 */
+
         PBSNoiseGenerator fractalPlaineGenerator = new FractalNoiseGenerator(fractalNoiseTypePlains, seedPlains, frequencyPlains, fractalGainPlains, interpPlains, fractalTypePlains, octavePlains, lacunarityPlains);
 
         PBSNoiseGenerator fractalMountainsGenerator = new FractalNoiseGenerator(fractalNoiseTypeMountains, seedMountains, frequencyMountains, fractalGainMountains, interpMountains, fractalTypeMountains, octaveMountains, lacunarityMountains);
-        //PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(fractalMountainsGenerator, 100.0f, 0.1f);
-        //return scaleBiasGenerator;
 
         PBSNoiseGenerator maskGenerator = new FractalNoiseGenerator(fractalNoiseTypeMask, seedMask, frequencyMask, fractalGainMask, interpMask, fractalTypeMask, octaveMask, lacunarityMask);
 
         PBSNoiseGenerator result = new SelectNoiseModule(fractalPlaineGenerator, fractalMountainsGenerator, maskGenerator, selectInterpType, falloffSelect, thresholdSelect, numStepsSelect);
-        //return result;
 
         PBSNoiseGenerator zeroOneResult = new ZeroOneNoiseModule(result);
+
+        //PBSNoiseGenerator warpGen = new WarpModule(zeroOneResult, zeroOneResult, 0.5f, WarpIterationsType.Two);
+
         PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(zeroOneResult, 0.2f, 0f);
-        
         return scaleBiasGenerator;
     }
 

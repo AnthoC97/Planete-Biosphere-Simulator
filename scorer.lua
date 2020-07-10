@@ -1,5 +1,7 @@
 populationSize = 200;
 local points = getPoints();
+local plateau = 0;
+local lastBestScore = -999999999999999999;
 
 function getScore()
 	local score = 0;
@@ -24,5 +26,11 @@ function getScore()
 end
 
 function isEndCriteria()
-	return bestScore >= 0;
+	if bestScore > lastBestScore then
+		lastBestScore = bestScore;
+		plateau = 0;
+	else
+		plateau = plateau+1;
+	end
+	return bestScore >= 0 or plateau >= 6;
 end

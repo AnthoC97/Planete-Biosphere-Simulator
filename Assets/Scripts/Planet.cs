@@ -107,7 +107,7 @@ public class Planet : MonoBehaviour
         {
             if (meshFilters[i] == null)
             {
-                GameObject meshObj = new GameObject("mesh");
+                GameObject meshObj = new GameObject("TerrainMesh");
                 meshObj.transform.parent = transform;
                 meshObj.AddComponent<MeshRenderer>().sharedMaterial = material;
                 meshFilters[i] = meshObj.AddComponent<MeshFilter>();
@@ -153,9 +153,9 @@ public class Planet : MonoBehaviour
         }
     }
 
-    public void UpdateNoiseGenerator(PBSNoiseGenerator noiseGenerator)
+    public void UpdateNoiseGenerator()
     {
-        this.noiseGenerator = noiseGenerator;
+        noiseGenerator = pbsNoiseScript.GetNoiseGenerator();
         GenerateMesh();
     }
 

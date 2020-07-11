@@ -43,7 +43,8 @@ public class LuaAPI
     }
 
     public GameObject AddUISlider(GameObject gameObject, string sharedVar,
-            float minValue, float maxValue, float r = 1, float g = 59/255, float b = 59/255)
+            float minValue, float maxValue, float r = 1, float g = 59/255,
+            float b = 59/255)
     {
         EntityUI entityUI = gameObject.GetComponent<EntityUI>();
         Transform canvasTransform = gameObject.transform.Find("Canvas");
@@ -75,5 +76,33 @@ public class LuaAPI
         Debug.Log("Successfully added an UI Slider element!");
 
         return slider;
+    }
+
+    public GameObject AddUIText(GameObject gameObject, string sharedVar)
+    {
+        EntityUI entityUI = gameObject.GetComponent<EntityUI>();
+        Transform canvasTransform = gameObject.transform.Find("Canvas");
+
+        if (canvasTransform == null || entityUI == null) {
+            Debug.LogError("canvasTransform == null (" + canvasTransform
+                    +") || entityUI == null (" + entityUI + ")");
+            return null;
+        }
+
+        GameObject text = GameObject.Instantiate(textPrefab);
+        text.SetActive(true); // XXX WTF? Not active by default?
+
+        Text textComponent = text.GetComponent<Text>();
+        text.transform.SetParent(canvasTransform);
+        text.transform.localScale = new Vector3(1, 1, 1); // XXX WTF? Keep it!
+        Vector3 pos = text.transform.localPosition;
+        pos.z = 0; // XXX Again, why does it take the position of the parent?
+        text.transform.localPosition = pos;
+
+        entityUI.AddElement(sharedVar, textComponent);
+
+        Debug.Log("Successfully added an UI Text element!");
+
+        return text;
     }
 }

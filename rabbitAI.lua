@@ -24,6 +24,7 @@ function start()
     --sharedContext.lifespawn = 6;
     --sharedContext.currentState = state.idle;
 
+    API.AddUIText(gameObject, "currentState");
     API.AddUISlider(gameObject, "thirst", 0, 100, 0, 203/255, 229/255);
     API.AddUISlider(gameObject, "hunger", 0, 100, 0, 1, 24/255);
     API.AddUISlider(gameObject, "stamina", 0, 100);

@@ -23,6 +23,10 @@ function start()
     --sharedContext.age = 2;
     --sharedContext.lifespawn = 6;
     --sharedContext.currentState = state.idle;
+
+    API.AddUISlider(gameObject, "thirst", 0, 100);
+    API.AddUISlider(gameObject, "hunger", 0, 100);
+    API.AddUISlider(gameObject, "stamina", 0, 100);
 end
 
 -- Update is called once per frame
@@ -126,7 +130,7 @@ function firstWithTagInSenseRange(tag)
     for i = 1, #colliders do
         collided = colliders[i].gameObject;
         if (collided.name ~= gameObject.name and collided.CompareTag(tag)) then
-            print(colliders[i].gameObject.transform.name);
+            --print(colliders[i].gameObject.transform.name);
             return colliders[i].gameObject;
         end
     end

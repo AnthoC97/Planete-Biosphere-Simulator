@@ -9,13 +9,15 @@ public class Simulation : MonoBehaviour
 
     private void Start()
     {
+        GameObject rabbitPrefab = Resources.Load<GameObject>("Rabbit");
+
         planet = GameObject.Find("Planet").GetComponent<Planet>();
         planetNoiseScript =
             GameObject.Find("Planet").GetComponent<PBSNoiseScript>();
 
         GameObject[] food = GameObject.FindGameObjectsWithTag("Food");
         GameObject[] water = GameObject.FindGameObjectsWithTag("Water");
-        GameObject rabbit = GameObject.Find("Rabbit");
+        //GameObject rabbit = GameObject.Find("Rabbit");
 
         for (int i = 0; i < 100; ++i) {
             GameObject newFood = GameObject.Instantiate(food[0]);
@@ -28,7 +30,7 @@ public class Simulation : MonoBehaviour
         }
 
         for (int i = 0; i < 50; ++i) {
-            GameObject newRabbit = GameObject.Instantiate(rabbit);
+            GameObject newRabbit = GameObject.Instantiate(rabbitPrefab);
             newRabbit.transform.position = Random.onUnitSphere;
         }
 
@@ -127,13 +129,7 @@ public class Simulation : MonoBehaviour
             }
 
             if (entityActions.HasActionsQueued()) {
-                var status = entityActions.ExecuteCurrentAction();
-                if (status.done) {
-                    Debug.Log("Done action, result: "
-                            + status.result.ToString()
-                            + ". Actions remain: "
-                            + entityActions.HasActionsQueued());
-                }
+                entityActions.ExecuteCurrentAction();
             }
         }
     }

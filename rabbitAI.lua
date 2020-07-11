@@ -38,6 +38,10 @@ function update()
 
     sharedContext.Synchronize(localSharedContext);
 
+    if localSharedContext["stamina"] >= 100 then
+        API.AddEntityInWorld("rabbit", gameObject.transform.position);
+    end
+
     --hungerJauge.value = 100 - hunger;
     --thirstJauge.value = 100 - thirst;
     --stateDisplay.text = currentState.ToString();

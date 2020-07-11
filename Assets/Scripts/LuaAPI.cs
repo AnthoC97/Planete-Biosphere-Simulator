@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using MoonSharp.Interpreter;
@@ -73,8 +74,6 @@ public class LuaAPI
 
         entityUI.AddElement(sharedVar, sliderComponent);
 
-        Debug.Log("Successfully added an UI Slider element!");
-
         return slider;
     }
 
@@ -101,8 +100,42 @@ public class LuaAPI
 
         entityUI.AddElement(sharedVar, textComponent);
 
-        Debug.Log("Successfully added an UI Text element!");
-
         return text;
+    }
+
+    public bool AddEntityInWorld(string entityTypeName, Vector3 position)
+    {
+        // TODO Get the actual entity type configuration
+        Mesh configuredMesh = GameObject.Instantiate(rabbitPrefab.GetComponent<MeshFilter>().sharedMesh);
+        Type configuredBehaviour = typeof(ScriptedBehaviour);
+        string scriptPath = rabbitPrefab.GetComponent<ScriptedBehaviour>().scriptPath;
+
+        rabbitPrefab.SetActive(false);
+        GameObject newEntity = GameObject.Instantiate(rabbitPrefab);
+        rabbitPrefab.SetActive(true);
+        newEntity.name = entityTypeName;
+        newEntity.transform.position = position;
+        GameObject model = newEntity.transform.Find("Model").gameObject;
+        MeshFilter meshFilter = newEntity.GetComponent<MeshFilter>();
+        meshFilter.sharedMesh = configuredMesh;
+
+        ScriptedBehaviour scriptedBehaviour =
+            newEntity.GetComponent<ScriptedBehaviour>();
+        if (configuredBehaviour == typeof(ScriptedBehaviour)) {
+            scriptedBehaviour.scriptPath = scriptPath;
+        } else {
+            scriptedBehaviour.enabled = false;
+            newEntity.AddComponent(configuredBehaviour);
+        }
+
+        newEntity.SetActive(true);
+
+        return true;
+    }
+
+    public bool AddEntityInWorld(string entityTypeName, float x, float y,
+            float z)
+    {
+        return AddEntityInWorld(entityTypeName, new Vector3(x, y, z));
     }
 }

@@ -43,7 +43,7 @@ public class LuaAPI
     }
 
     public GameObject AddUISlider(GameObject gameObject, string sharedVar,
-            float minValue, float maxValue)
+            float minValue, float maxValue, float r = 1, float g = 59/255, float b = 59/255)
     {
         EntityUI entityUI = gameObject.GetComponent<EntityUI>();
         Transform canvasTransform = gameObject.transform.Find("Canvas");
@@ -54,30 +54,8 @@ public class LuaAPI
             return null;
         }
 
-        //GameObject canvas = canvasTransform.gameObject;
-
-        /*
-        GameObject slider = new GameObject("Slider");
-
-        slider.SetLayer("UI");
-
-        Slider sliderComponent = slider.AddComponent<Slider>();
-        sliderComponent.interactable = false;
-        sliderComponent.minValue = minValue;
-        sliderComponent.maxValue = maxValue;
-
-        RectTransform rt = slider.GetComponent<RectTransform>();
-        rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 60);
-
-        slider.transform.SetParent(canvasTransform);
-
-        GameObject background = new GameObject("Background");
-        Image bgImage = background.AddComponent<Image>();
-        bgImage.
-        */
-
         GameObject slider = GameObject.Instantiate(sliderPrefab);
-        slider.SetActive(true); // FIXME WTF?
+        slider.SetActive(true); // XXX WTF? Not active by default?
 
         Slider sliderComponent = slider.GetComponent<Slider>();
         sliderComponent.minValue = minValue;
@@ -85,8 +63,12 @@ public class LuaAPI
         slider.transform.SetParent(canvasTransform);
         slider.transform.localScale = new Vector3(1, 1, 1); // XXX WTF? Keep it!
         Vector3 pos = slider.transform.localPosition;
-        pos.z = 0;
+        pos.z = 0; // XXX Again, why does it take the position of the parent?
         slider.transform.localPosition = pos;
+
+        GameObject fill = slider.transform.Find("Fill Area/Fill").gameObject;
+        Image image = fill.GetComponent<Image>();
+        image.color = new Color(r, g, b, 1);
 
         entityUI.AddElement(sharedVar, sliderComponent);
 

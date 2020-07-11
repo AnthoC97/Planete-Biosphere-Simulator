@@ -32,6 +32,9 @@ public class GeneticNoise : MonoBehaviour
     static Vector3[] scorerPoints;
     Script script;
 
+    public delegate void EndAlgoGenDelegate();
+    public event EndAlgoGenDelegate OnEndAlgoGen;
+
     private void OnEnable()
     {
         // Store points before to speed up
@@ -43,13 +46,7 @@ public class GeneticNoise : MonoBehaviour
         if (!planet.GetIstUsingNoiseGenetic()) return;
         StopAllCoroutines();
 
-        // Apply best solution
-        foreach (GeneticValue geneticVal in bestSolution)
-        {
-            geneticVal.ApplyValue(noiseScript);
-        }
-        planet.UpdateNoiseGenerator();
-        planet.SetIsUsingNoiseGenetic(false);
+        EndAlgoGen();
     }
 
     void Start()
@@ -133,13 +130,7 @@ public class GeneticNoise : MonoBehaviour
             }
         }
 
-        // Apply best solution
-        foreach (GeneticValue geneticVal in bestSolution)
-        {
-            geneticVal.ApplyValue(noiseScript);
-        }
-        planet.UpdateNoiseGenerator();
-        planet.SetIsUsingNoiseGenetic(false);
+        EndAlgoGen();
     }
 
     List<GeneticValue> Generate()
@@ -205,6 +196,7 @@ public class GeneticNoise : MonoBehaviour
             geneticVal.ApplyValue(noiseScript);
         }
 
+        // Get Score
         if (script != null)
         {
             DynValue res = script.Call(script.Globals["getScore"]);
@@ -216,9 +208,9 @@ public class GeneticNoise : MonoBehaviour
         {
             bestScore = score;
             bestSolution = solution;
-            if(script != null) script.Globals["bestScore"] = bestScore;
-            print("new best score: "+ bestScore);
+            if (script != null) script.Globals["bestScore"] = bestScore;
             planet.UpdateNoiseGenerator();
+            print("new best score: " + bestScore);
         }
 
         return score;
@@ -256,8 +248,16 @@ public class GeneticNoise : MonoBehaviour
     List<GeneticValue> CrossOperator(List<GeneticValue> solution1, List<GeneticValue> solution2)
     {
         int num = solution1.Count/2;
-        List<GeneticValue> newSolution = solution1.GetRange(0, num-1);
-        newSolution.AddRange(solution2.GetRange(num, solution2.Count-num-1));
+        List<GeneticValue> newSolution = new List<GeneticValue>();//solution1.GetRange(0, num-1);
+        for(int i=0; i<num; ++i)
+        {
+            newSolution.Add((GeneticValue)solution1[i].Clone());
+        }
+        //newSolution.AddRange(solution2.GetRange(num, solution2.Count-num));
+        for (int i = num; i < solution2.Count; ++i)
+        {
+            newSolution.Add((GeneticValue)solution2[i].Clone());
+        }
         return newSolution;
     }
 
@@ -265,13 +265,17 @@ public class GeneticNoise : MonoBehaviour
     {
         if (probaMutation < UnityEngine.Random.value) return solution;
         int randIndex = UnityEngine.Random.Range(0, solution.Count - 1);
-        solution[randIndex].SetValue(solution[randIndex].GetRandomValue());
-        return solution;
+        List<GeneticValue> sol = new List<GeneticValue>(solution);
+        //solution[randIndex].SetValue(solution[randIndex].GetRandomValue());
+        sol[randIndex] = (GeneticValue)sol[randIndex].Clone();
+        sol[randIndex].SetValue(sol[randIndex].GetRandomValue());
+        return sol;
     }
 
     private void OnDrawGizmos()
     {
         if (!debug) return;
+        if (!enabled) return;
 
         Gizmos.color = Color.green;
         PBSNoiseGenerator NoiseGenerator = planet.noiseGenerator;
@@ -409,6 +413,18 @@ public class GeneticNoise : MonoBehaviour
     {
         return float.IsInfinity(value);
     }
+
+    private void EndAlgoGen()
+    {
+        // Apply best solution
+        foreach (GeneticValue geneticVal in bestSolution)
+        {
+            geneticVal.ApplyValue(noiseScript);
+        }
+        planet.UpdateNoiseGenerator();
+        planet.SetIsUsingNoiseGenetic(false);
+        OnEndAlgoGen();
+    }
 }
 
 public class TriangleIndex
@@ -424,7 +440,7 @@ public class TriangleIndex
     }
 }
 
-public abstract class GeneticValue
+public abstract class GeneticValue : ICloneable
 {
     protected string name;
 
@@ -439,6 +455,11 @@ public abstract class GeneticValue
     public virtual object GetRandomValue()
     {
         return null;
+    }
+
+    public object Clone()
+    {
+        return this.MemberwiseClone();
     }
 }
 

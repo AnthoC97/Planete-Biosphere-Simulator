@@ -2,7 +2,7 @@
 
 public class StaticSettings
 {
-    public static bool useStaticSettings = false;
+    public static bool useStaticSettings = true;
 
     // Planet
     public static float planetRadius = 200;

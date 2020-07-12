@@ -18,6 +18,9 @@ public class GeneticTree : MonoBehaviour
     public DeterministicGrammar g1;
     private float timer = 0.0f;
 
+    private int treeNb = 0;
+    private bool process_or_GA = true;
+
     public void Start()
     {
         int i = 0;
@@ -29,6 +32,7 @@ public class GeneticTree : MonoBehaviour
         {
             for (int z = 0; z < forestSize; z += elementSpacing)
             {
+                treeNb++;
                 int rnd = Random.Range(0, grammars.Count);
                 Tree t = new Tree(grammars[rnd], 10);
                 //        //Debug.Log(t);
@@ -56,16 +60,36 @@ public class GeneticTree : MonoBehaviour
     {
         timer += Time.deltaTime;
         //processSelection
-        for (int i = 0; i < trees_genotype.Count; i++)
+        if(timer % 10 < 5)
         {
-            if (trees_genotype[i].Process(15, 20, 40, timer))
+            process_or_GA = true;
+        }
+        else
+        {
+            process_or_GA = false;
+        }
+        if(process_or_GA)
+        {
+            for (int i = 0; i < trees_genotype.Count; i++)
             {
-                Vector3 pos = trees_position[i];
-                Destroy(trees_phenotype[i]);
-                trees_phenotype.RemoveAt(i);
-                string word = GenerateWord(g1, trees_genotype[i].level);
-                trees_phenotype.Insert(i, WordTo2DTree(word, pos, trees_genotype[i], "tree_" + i));
+                if (trees_genotype[i].Process(15, 20, 40, timer))
+                {
+                    Vector3 pos = trees_position[i];
+                    Destroy(trees_phenotype[i]);
+                    trees_phenotype.RemoveAt(i);
+                    string word = GenerateWord(g1, trees_genotype[i].level);
+                    trees_phenotype.Insert(i, WordTo2DTree(word, pos, trees_genotype[i], "tree_" + i));
+                }
             }
+        }
+        else
+        {
+            //Genetic algorithm
+            Selection(treeNb / 2);
+            Crossover(0.3f);
+            ReplaceTrees();
+            timer = 0;
+            process_or_GA = true;
         }
 
         //Debug.Log("Level : " + t.level);
@@ -292,10 +316,11 @@ public class GeneticTree : MonoBehaviour
             Tree child1, child2;
             float height1, height2, radius1, radius2;
             int delta_angle1, delta_anlge2;
-            height1 = alpha * t1.height + (1 - alpha) * t2.height;
-            height2 = alpha * t2.height + (1 - alpha) * t1.height;
-            radius1 = alpha * t1.radius + (1 - alpha) * t2.radius;
-            radius2 = alpha * t2.radius + (1 - alpha) * t1.radius;
+            height1 = alpha * t1.trunc_height + (1 - alpha) * t2.trunc_height;
+            Debug.Log("height : " + height1 + ", t1 height " + t1.height + ", t2 height" + t2.height);
+            height2 = alpha * t2.trunc_height + (1 - alpha) * t1.trunc_height;
+            radius1 = alpha * t1.trunc_radius + (1 - alpha) * t2.trunc_radius;
+            radius2 = alpha * t2.trunc_radius + (1 - alpha) * t1.trunc_radius;
             delta_angle1 = (int)(alpha * t1.delta_angle + (1 - alpha) * t2.delta_angle);
             delta_anlge2 = (int)(alpha * t2.delta_angle + (1 - alpha) * t1.delta_angle);
             child1 = new Tree(t1.g, t1.timeToGrow, height1, radius1, delta_angle1);
@@ -358,5 +383,51 @@ public class GeneticTree : MonoBehaviour
                 max = trees_genotype[i].minerals;
         }
         return max;
+    }
+
+    public void ReplaceTrees()
+    {
+        Debug.Log("tree count : "+trees_position.Count);
+        foreach(GameObject g in trees_phenotype)
+        {
+            Destroy(g);
+        }
+        trees_phenotype.Clear();
+        trees_score.Clear();
+        int index = 0; // sert a creer de nouveaux arbres
+         //sert a creer les arbres existant
+        int n = trees_genotype.Count / 2;
+        bool find_existing_tree = false;
+        for (int x = 0; x < forestSize; x += elementSpacing)
+        {
+            for (int z = 0; z < forestSize; z += elementSpacing)
+            {
+                int index_pos = 0;
+                foreach(Vector3 pos in trees_position)
+                {
+                    index_pos++;
+                    if(pos.x == x && pos.z == z)
+                    {
+                        Debug.Log("Index : " + index_pos);
+                        string word = GenerateWord(trees_genotype[index_pos].g, trees_genotype[index_pos].level);
+                        trees_phenotype.Add(WordTo2DTree(word, pos, trees_genotype[index_pos], "tree_" + index_pos));
+                        StartCoroutine(trees_genotype[index_pos].GetWater());
+                        StartCoroutine(trees_genotype[index_pos].SetReserve());
+                        find_existing_tree = true;
+                        continue;
+                    }
+                }
+                if(find_existing_tree)
+                {
+                    Vector3 position = new Vector3(x, 0f, z);
+                    string word = GenerateWord(trees_genotype[index+n].g, trees_genotype[index+n].level);
+                    trees_phenotype.Add(WordTo2DTree(word, new Vector3(x, 0f, z), trees_genotype[index+n], "tree_" + (index+n)));
+                    trees_position.Add(position);
+                    StartCoroutine(trees_genotype[index + n].GetWater());
+                    StartCoroutine(trees_genotype[index + n].SetReserve());
+                    find_existing_tree = false;
+                }
+            }
+        }
     }
 }

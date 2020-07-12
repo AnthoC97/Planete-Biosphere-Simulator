@@ -99,7 +99,7 @@ public class Tree
         {
             if(glucid >= 1)
             { 
-                Debug.Log("OK");
+                //Debug.Log("OK");
                 glucid -= 1;
                 reserve += 1;
             }
@@ -120,14 +120,14 @@ public class Tree
 
     public bool Grow()
     {
-        Debug.Log("reserve : " + reserve);
-        Debug.Log("glucid : " + glucid);
+        //Debug.Log("reserve : " + reserve);
+        //Debug.Log("glucid : " + glucid);
         if (reserve == level)
         {
             reserve = 0;
             level += 1;
-            Debug.Log("reserve : " + reserve);
-            Debug.Log("level : " + level);
+            //Debug.Log("reserve : " + reserve);
+            //Debug.Log("level : " + level);
             return true;
         }
         return false;

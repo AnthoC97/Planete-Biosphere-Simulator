@@ -274,7 +274,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grammars:
   - {fileID: 11400000, guid: b7ebbc0cd7819444e88c00d9c2ecdc4b, type: 2}
-  forestSize: 25
+  forestSize: 10
   elementSpacing: 3
   leaf: {fileID: 1918718762059779754, guid: 1fe3349c383455a44beba9da6435b435, type: 3}
   trunk_mat: {fileID: 2100000, guid: ecf7fe00577cb434c8d165f1fcd4b652, type: 2}

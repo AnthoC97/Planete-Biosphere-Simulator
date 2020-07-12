@@ -6,6 +6,8 @@ using MoonSharp.Interpreter;
 
 public class ScriptedBehaviour : MonoBehaviour
 {
+    private static Simulation simulation;
+
     private Script luaScript;
     public string scriptPath;
 
@@ -13,37 +15,17 @@ public class ScriptedBehaviour : MonoBehaviour
 
     public void Awake()
     {
-        Initialize();
+        sharedContext = new Dictionary<string, DynValue>();
+
+        if (simulation == null) {
+            simulation =
+                GameObject.Find("Simulation").GetComponent<Simulation>();
+        }
     }
 
     public void Initialize()
     {
-        sharedContext = new Dictionary<string, DynValue>();
-
         Script.GlobalOptions.RethrowExceptionNested = true;
-
-        UserData.RegisterAssembly();
-        UserData.RegisterType<Vector3>();
-        UserData.RegisterType<Transform>();
-        UserData.RegisterType<Color>();
-        UserData.RegisterType<GameObject>();
-        UserData.RegisterType<LuaAPI>();
-        UserData.RegisterType<Entity>();
-        UserData.RegisterType<Simulation>();
-        UserData.RegisterType<Time>();
-        UserData.RegisterType<Input>();
-        //UserData.RegisterType<PhysicsAPI>();
-        UserData.RegisterType<Physics>();
-        UserData.RegisterType<KeyCode>();
-        UserData.RegisterType<UnityEngine.Random>();
-        UserData.RegisterType<Collider>();
-        UserData.RegisterType<MoveAction>();
-        UserData.RegisterType<ActionScripted>();
-        UserData.RegisterType<ActionGetAsleep>();
-        UserData.RegisterType<ActionSleep>();
-        UserData.RegisterType<ActionExecuteAfterDelay>();
-        UserData.RegisterType<Script>();
-        UserData.RegisterType<SharedContextProxy>();
 
         if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
             luaScript = new Script();
@@ -84,8 +66,6 @@ public class ScriptedBehaviour : MonoBehaviour
                 luaScript.Globals["entity"] = entity;
             }
 
-            Simulation simulation =
-                GameObject.Find("Simulation").GetComponent<Simulation>();
             if (simulation != null) {
                 luaScript.Globals["simulation"] = simulation;
             }
@@ -107,9 +87,13 @@ public class ScriptedBehaviour : MonoBehaviour
 
     public void Start()
     {
-        if (luaScript.Globals["start"] != null) {
+        Initialize();
+
+        var startFunction = luaScript.Globals["start"];
+
+        if (startFunction != null) {
             try {
-                luaScript.Call(luaScript.Globals["start"]);
+                luaScript.Call(startFunction);
             } catch (ScriptRuntimeException ex) {
                 Debug.LogError("[Start] Script runtime exception: "
                         + ex.DecoratedMessage);
@@ -119,9 +103,11 @@ public class ScriptedBehaviour : MonoBehaviour
 
     public void Update()
     {
-        if (luaScript.Globals["update"] != null) {
+        var updateCallback = luaScript.Globals["update"];
+
+        if (updateCallback != null) {
             try {
-                luaScript.Call(luaScript.Globals["update"]);
+                luaScript.Call(updateCallback);
             } catch (ScriptRuntimeException ex) {
                 Debug.LogError("[Update] Script runtime exception: "
                         + ex.DecoratedMessage);

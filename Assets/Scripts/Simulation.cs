@@ -1,4 +1,5 @@
 using UnityEngine;
+using MoonSharp.Interpreter;
 
 public class Simulation : MonoBehaviour
 {
@@ -6,6 +7,34 @@ public class Simulation : MonoBehaviour
 
     private Planet planet;
     private PBSNoiseScript planetNoiseScript;
+
+    public void Awake()
+    {
+        UserData.RegisterAssembly();
+
+        UserData.RegisterType<Vector3>();
+        UserData.RegisterType<Transform>();
+        UserData.RegisterType<Color>();
+        UserData.RegisterType<GameObject>();
+        UserData.RegisterType<LuaAPI>();
+
+        UserData.RegisterType<Entity>();
+        UserData.RegisterType<Simulation>();
+        UserData.RegisterType<Time>();
+        UserData.RegisterType<Input>();
+        //UserData.RegisterType<PhysicsAPI>();
+        UserData.RegisterType<Physics>();
+        UserData.RegisterType<KeyCode>();
+        UserData.RegisterType<UnityEngine.Random>();
+        UserData.RegisterType<Collider>();
+        UserData.RegisterType<MoveAction>();
+        UserData.RegisterType<ActionScripted>();
+        UserData.RegisterType<ActionGetAsleep>();
+        UserData.RegisterType<ActionSleep>();
+        UserData.RegisterType<ActionExecuteAfterDelay>();
+        UserData.RegisterType<Script>();
+        UserData.RegisterType<SharedContextProxy>();
+    }
 
     private void Start()
     {
@@ -45,13 +74,6 @@ public class Simulation : MonoBehaviour
             Vector3 normalizedPosition = entity.transform.position.normalized;
             entity.transform.position =
                 GetGroundPositionWithElevation(normalizedPosition, .5f);
-
-            //Entity entityActions = entity.GetComponent<Entity>();
-
-            //if (entityActions != null && !entityActions.HasActionsQueued()) {
-            //    Vector3 movement = new Vector3(0, 10, 0);
-            //    MoveEntityRelative(entity, entityActions, movement);
-            //}
         }
 
         food = GameObject.FindGameObjectsWithTag("Food");
@@ -76,50 +98,6 @@ public class Simulation : MonoBehaviour
         float elevation = planetNoiseScript
             .GetNoiseGenerator().GetNoise3D(normalizedPosition);
         return normalizedPosition * (1 + elevation) * planet.radius;
-    }
-
-    private void MoveEntityRelative(GameObject entity, Entity entityActions,
-            Vector3 movement)
-    {
-        Vector3 position = entity.transform.position;
-        Debug.Log("Old position: " + position.ToString());
-        position += movement;
-        position = GetGroundPositionWithElevation(position.normalized, .5f);
-        Debug.Log("Destination: " + position.ToString());
-        entityActions.AddAction(new MoveAction(position, entity, .2f));
-    }
-
-    public void Update()
-    {
-        GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
-
-        foreach (GameObject entity in entities) {
-            Entity entityActions = entity.GetComponent<Entity>();
-
-            if (entityActions == null || entityActions.HasActionsQueued()) {
-                continue;
-            }
-
-            if (Input.GetKeyDown(KeyCode.RightArrow)) {
-                Vector3 movement = new Vector3(10, 0, 0);
-                MoveEntityRelative(entity, entityActions, movement);
-            } else if (Input.GetKeyDown(KeyCode.LeftArrow)) {
-                Vector3 movement = new Vector3(-10, 0, 0);
-                MoveEntityRelative(entity, entityActions, movement);
-            } else if (Input.GetKeyDown(KeyCode.UpArrow)) {
-                Vector3 movement = new Vector3(0, 0, 10);
-                MoveEntityRelative(entity, entityActions, movement);
-            } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
-                Vector3 movement = new Vector3(0, 0, -10);
-                MoveEntityRelative(entity, entityActions, movement);
-            } else if (Input.GetKeyDown(KeyCode.PageUp)) {
-                Vector3 movement = new Vector3(0, 10, 0);
-                MoveEntityRelative(entity, entityActions, movement);
-            } else if (Input.GetKeyDown(KeyCode.PageDown)) {
-                Vector3 movement = new Vector3(0, -10, 0);
-                MoveEntityRelative(entity, entityActions, movement);
-            }
-        }
     }
 
     public void FixedUpdate()

@@ -12,13 +12,6 @@ public class ActionScripted : Action
     {
         this.scriptPath = scriptPath;
 
-        UserData.RegisterAssembly();
-        UserData.RegisterType<Vector3>();
-        UserData.RegisterType<Transform>();
-        UserData.RegisterType<Color>();
-        UserData.RegisterType<GameObject>();
-        UserData.RegisterType<LuaAPI>();
-
         if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
             luaScript = new Script();
             luaScript.Options.ScriptLoader =
@@ -58,12 +51,14 @@ public class ActionScripted : Action
 
     public override bool CanBeExecuted()
     {
-        if (luaScript.Globals["canBeExecuted"] == null) {
+        var canBeExecutedFunction = luaScript.Globals["canBeExecuted"];
+
+        if (canBeExecutedFunction == null) {
             return true;
         }
 
         try {
-            return luaScript.Call(luaScript.Globals["canBeExecuted"]).Boolean;
+            return luaScript.Call(canBeExecutedFunction).Boolean;
         } catch (ScriptRuntimeException ex) {
             Debug.LogError("[CanBeExecuted] Could not execute function: "
                     + ex.DecoratedMessage);

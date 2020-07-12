@@ -99,6 +99,10 @@ public class ScriptedBehaviour : MonoBehaviour
                         + ex.DecoratedMessage);
             }
         }
+
+        // XXX Those rotations need to be done after initializing entity UI
+        transform.LookAt(Vector3.zero);
+        transform.Rotate(new Vector3(-90f, 0, 0));
     }
 
     public void Update()

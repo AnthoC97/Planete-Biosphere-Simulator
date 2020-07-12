@@ -8,8 +8,10 @@ public class GeneticTree : MonoBehaviour
     private List<DeterministicGrammar> grammars;
     private List<Tree> trees_genotype;
     private List<GameObject> trees_phenotype;
+    private List<Vector3> trees_position;
+    private List<float> trees_score;
     public int forestSize = 25;
-    public int elementSpacing = 3;
+    public int elementSpacing = 10;
 
     public GameObject leaf;
     public Material trunk_mat;
@@ -21,6 +23,8 @@ public class GeneticTree : MonoBehaviour
         int i = 0;
         trees_genotype = new List<Tree>();
         trees_phenotype = new List<GameObject>();
+        trees_position = new List<Vector3>();
+        trees_score = new List<float>();
         for (int x = 0; x < forestSize; x += elementSpacing)
         {
             for (int z = 0; z < forestSize; z += elementSpacing)
@@ -29,6 +33,7 @@ public class GeneticTree : MonoBehaviour
                 Tree t = new Tree(grammars[rnd], 10);
                 //        //Debug.Log(t);
                 Vector3 position = new Vector3(x, 0f, z);
+                trees_position.Add(position);
                 //        //Vector3 offset = new Vector3(Random.Range(-0.75f, 0.75f), 0f, Random.Range(-0.75f, 0.75f));
                 //        //Vector3 rotation = new Vector3(Random.Range(0, 5f), Random.Range(0, 360f), Random.Range(0, 5f));
                 //        //Vector3 scale = Vector3.one * Random.Range(0.75f, 1.25f);
@@ -50,14 +55,16 @@ public class GeneticTree : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-        for(int i = 0; i < trees_genotype.Count; i++)
+        //processSelection
+        for (int i = 0; i < trees_genotype.Count; i++)
         {
             if (trees_genotype[i].Process(15, 20, 40, timer))
             {
-                Vector3 pos = trees_phenotype[i].transform.position;
+                Vector3 pos = trees_position[i];
                 Destroy(trees_phenotype[i]);
+                trees_phenotype.RemoveAt(i);
                 string word = GenerateWord(g1, trees_genotype[i].level);
-                trees_phenotype.Insert(i, WordTo2DTree(word, Vector3.one, trees_genotype[i], "tree"));
+                trees_phenotype.Insert(i, WordTo2DTree(word, pos, trees_genotype[i], "tree_" + i));
             }
         }
 
@@ -225,6 +232,80 @@ public class GeneticTree : MonoBehaviour
             t.water * (1 / getMaxWater());
 
         return rate;
+    }
+
+    public void Selection(int number_selection)
+    {
+        int count = 0;
+        List<Tree> final_population = new List<Tree>();
+        List<float> final_score = new List<float>();
+        List<Vector3> final_position = new List<Vector3>();
+        float maxDistance = 0;
+        int max_index = 0;
+        //Remplir tri score
+        foreach(Tree t in trees_genotype)
+        {
+            trees_score.Add(Fitness(t));
+        }
+        while (count < number_selection)
+        {
+            for (int i = 0; i < trees_score.Count; i++)
+            {
+                if (i == 0)
+                {
+                    maxDistance = trees_score[i];
+                    max_index = i;
+                }
+                if (trees_score[i] > maxDistance)
+                {
+                    maxDistance = trees_score[i];
+                    max_index = i;
+                }
+            }
+            final_population.Add(trees_genotype[max_index]);
+            //d'autres final
+            final_position.Add(trees_position[max_index]);
+            //final_score.Add(trees_score[max_index]);
+            trees_genotype.RemoveAt(max_index);
+            trees_position.RemoveAt(max_index);
+            trees_score.RemoveAt(max_index);
+            ++count;
+        }
+        //mettre a jour les tableaux
+        trees_genotype = final_population;
+        trees_position = final_position;
+        //trees_score = final_score;
+    }
+
+    public void Crossover(float alpha)
+    {
+        List<Tree> final_population = new List<Tree>();
+
+        while(trees_genotype.Count != 0)
+        {
+            int rnd1 = Random.Range(0, trees_genotype.Count - 1);
+            Tree t1 = trees_genotype[rnd1];
+            trees_genotype.RemoveAt(rnd1);
+            int rnd2 = Random.Range(0, trees_genotype.Count - 1);
+            Tree t2 = trees_genotype[rnd2];
+            trees_genotype.RemoveAt(rnd2);
+            Tree child1, child2;
+            float height1, height2, radius1, radius2;
+            int delta_angle1, delta_anlge2;
+            height1 = alpha * t1.height + (1 - alpha) * t2.height;
+            height2 = alpha * t2.height + (1 - alpha) * t1.height;
+            radius1 = alpha * t1.radius + (1 - alpha) * t2.radius;
+            radius2 = alpha * t2.radius + (1 - alpha) * t1.radius;
+            delta_angle1 = (int)(alpha * t1.delta_angle + (1 - alpha) * t2.delta_angle);
+            delta_anlge2 = (int)(alpha * t2.delta_angle + (1 - alpha) * t1.delta_angle);
+            child1 = new Tree(t1.g, t1.timeToGrow, height1, radius1, delta_angle1);
+            child2 = new Tree(t2.g, t2.timeToGrow, height2, radius2, delta_anlge2);
+            final_population.Add(t1);
+            final_population.Add(t2);
+            final_population.Add(child1);
+            final_population.Add(child2);
+        }
+        trees_genotype = final_population;
     }
 
     public float getMaxHeight()

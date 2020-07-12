@@ -26,21 +26,21 @@ public class Entity : MonoBehaviour
         return true;
     }
 
-    public (bool done, bool result) ExecuteCurrentAction()
+    public (bool done, bool result, Action action) ExecuteCurrentAction()
     {
-        /* TODO Discuss whether actions that cannot be executed should be
-           removed from the queue */
-        if (!actionsQueue[0].CanBeExecuted()) {
+        Action currentAction = actionsQueue[0];
+
+        if (!currentAction.CanBeExecuted()) {
             actionsQueue.RemoveAt(0);
-            return (true, false);
+            return (true, false, currentAction);
         }
 
-        var status = actionsQueue[0].Execute();
+        var status = currentAction.Execute();
 
         if (status.done) {
             actionsQueue.RemoveAt(0);
         }
 
-        return status;
+        return (status.done, status.result, currentAction);
     }
 }

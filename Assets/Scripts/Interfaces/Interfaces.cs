@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class Interfaces : MonoBehaviour
 {
+    public GameObject creaturesParam;
     public GameObject menu;
     GameObject quitCheck;
 
@@ -14,8 +15,11 @@ public class Interfaces : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current.cKey.wasPressedThisFrame && !creaturesParam.activeInHierarchy)
+            creaturesParam.SetActive(true);
+        else if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            creaturesParam.SetActive(false);
             menu.SetActive(!menu.activeInHierarchy);
             quitCheck.SetActive(false);
         }

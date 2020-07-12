@@ -30,8 +30,13 @@ public class Simulation : MonoBehaviour
         }
 
         for (int i = 0; i < 50; ++i) {
-            GameObject newRabbit = GameObject.Instantiate(rabbitPrefab);
-            newRabbit.transform.position = Random.onUnitSphere;
+            EntityFactory.AddEntityInWorld("rabbit", Random.onUnitSphere);
+            //GameObject newRabbit = GameObject.Instantiate(rabbitPrefab);
+            //newRabbit.transform.position = Random.onUnitSphere;
+        }
+
+        for (int i = 0; i < 10; ++i) {
+            EntityFactory.AddEntityInWorld("fox", Random.onUnitSphere);
         }
 
         GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
@@ -129,7 +134,11 @@ public class Simulation : MonoBehaviour
             }
 
             if (entityActions.HasActionsQueued()) {
-                entityActions.ExecuteCurrentAction();
+                var status = entityActions.ExecuteCurrentAction();
+                if (status.done && !status.result
+                        && status.action.OnFailureCallback != null) {
+                    status.action.OnFailureCallback();
+                }
             }
         }
     }

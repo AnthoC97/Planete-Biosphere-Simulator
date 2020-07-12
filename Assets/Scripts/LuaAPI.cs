@@ -8,26 +8,14 @@ public class LuaAPI
 {
     private Planet planet;
     private PBSNoiseScript planetNoiseScript;
-    private static GameObject rabbitPrefab;
-    private static GameObject sliderPrefab;
-    private static GameObject textPrefab;
 
     public LuaAPI()
     {
         planet = GameObject.Find("Planet").GetComponent<Planet>();
         planetNoiseScript =
             GameObject.Find("Planet").GetComponent<PBSNoiseScript>();
-        if (rabbitPrefab == null) {
-            rabbitPrefab = Resources.Load<GameObject>("Rabbit");
-            if (rabbitPrefab == null) {
-                Debug.LogError("Could not load rabbit prefab!");
-            } else {
-                sliderPrefab =
-                    rabbitPrefab.transform.Find("Canvas/Slider").gameObject;
-                textPrefab =
-                    rabbitPrefab.transform.Find("Canvas/State").gameObject;
-            }
-        }
+
+        EntityFactory.Initialize();
     }
 
     public static void Register(Script script)
@@ -56,7 +44,7 @@ public class LuaAPI
             return null;
         }
 
-        GameObject slider = GameObject.Instantiate(sliderPrefab);
+        GameObject slider = GameObject.Instantiate(EntityFactory.sliderPrefab);
         slider.SetActive(true); // XXX WTF? Not active by default?
 
         Slider sliderComponent = slider.GetComponent<Slider>();
@@ -88,7 +76,7 @@ public class LuaAPI
             return null;
         }
 
-        GameObject text = GameObject.Instantiate(textPrefab);
+        GameObject text = GameObject.Instantiate(EntityFactory.textPrefab);
         text.SetActive(true); // XXX WTF? Not active by default?
 
         Text textComponent = text.GetComponent<Text>();
@@ -105,37 +93,12 @@ public class LuaAPI
 
     public bool AddEntityInWorld(string entityTypeName, Vector3 position)
     {
-        // TODO Get the actual entity type configuration
-        Mesh configuredMesh = GameObject.Instantiate(rabbitPrefab.GetComponent<MeshFilter>().sharedMesh);
-        Type configuredBehaviour = typeof(ScriptedBehaviour);
-        string scriptPath = rabbitPrefab.GetComponent<ScriptedBehaviour>().scriptPath;
-
-        rabbitPrefab.SetActive(false);
-        GameObject newEntity = GameObject.Instantiate(rabbitPrefab);
-        rabbitPrefab.SetActive(true);
-        newEntity.name = entityTypeName;
-        newEntity.transform.position = position;
-        GameObject model = newEntity.transform.Find("Model").gameObject;
-        MeshFilter meshFilter = newEntity.GetComponent<MeshFilter>();
-        meshFilter.sharedMesh = configuredMesh;
-
-        ScriptedBehaviour scriptedBehaviour =
-            newEntity.GetComponent<ScriptedBehaviour>();
-        if (configuredBehaviour == typeof(ScriptedBehaviour)) {
-            scriptedBehaviour.scriptPath = scriptPath;
-        } else {
-            scriptedBehaviour.enabled = false;
-            newEntity.AddComponent(configuredBehaviour);
-        }
-
-        newEntity.SetActive(true);
-
-        return true;
+        return EntityFactory.AddEntityInWorld(entityTypeName, position);
     }
 
     public bool AddEntityInWorld(string entityTypeName, float x, float y,
             float z)
     {
-        return AddEntityInWorld(entityTypeName, new Vector3(x, y, z));
+        return EntityFactory.AddEntityInWorld(entityTypeName, x, y, z);
     }
 }

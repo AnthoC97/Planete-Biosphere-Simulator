@@ -430,4 +430,10 @@ public class GeneticTree : MonoBehaviour
             }
         }
     }
+
+    public bool updateBool()
+    {
+        process_or_GA = !process_or_GA;
+        return process_or_GA;
+    }
 }

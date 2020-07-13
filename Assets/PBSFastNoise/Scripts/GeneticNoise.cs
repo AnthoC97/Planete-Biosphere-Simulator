@@ -130,7 +130,7 @@ public class GeneticNoise : MonoBehaviour
             }
         }
 
-        EndAlgoGen();
+        if (OnEndAlgoGen != null) OnEndAlgoGen();
     }
 
     List<GeneticValue> Generate()
@@ -423,7 +423,7 @@ public class GeneticNoise : MonoBehaviour
         }
         planet.UpdateNoiseGenerator();
         planet.SetIsUsingNoiseGenetic(false);
-        OnEndAlgoGen();
+        if (OnEndAlgoGen != null) OnEndAlgoGen();
     }
 }
 

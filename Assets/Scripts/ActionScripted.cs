@@ -19,7 +19,9 @@ public class ActionScripted : Action
 
             ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)
              luaScript.Options.ScriptLoader).ModulePaths =
-                new string[] { Application.dataPath + "/?",
+                new string[] { Application.dataPath + "/../?",
+                    Application.dataPath + "/../?.lua",
+                    Application.dataPath + "/?",
                     Application.dataPath + "/?.lua" };
             luaScript.Options.DebugPrint = Debug.Log;
 

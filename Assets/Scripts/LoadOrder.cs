@@ -27,8 +27,10 @@ public class LoadOrder : MonoBehaviour
     void EndGeneratePlanet()
     {
         PlanetGN.OnEndAlgoGen -= EndGeneratePlanet;
+        print("fin planet");
         // Démarré l'algo gén de la végétation
         planet.GetComponent<SpawnerGenerator>().enabled = true;
+        planet.GetComponent<GeneticTree>().enabled = true;
 
         // Démarré le spawn des créatures
 

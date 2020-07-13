@@ -291,6 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13a924774cb482648a72ec0fafc1d6a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  creaturesParam: {fileID: 0}
   menu: {fileID: 1837576766}
 --- !u!114 &89445708
 MonoBehaviour:
@@ -411,6 +412,7 @@ GameObject:
   - component: {fileID: 1583251946}
   - component: {fileID: 1583251947}
   - component: {fileID: 1583251948}
+  - component: {fileID: 1583251949}
   m_Layer: 0
   m_Name: Planet
   m_TagString: Untagged
@@ -571,7 +573,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1583251942}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4743b151a649ab42986aa17809527e0, type: 3}
   m_Name: 
@@ -589,6 +591,27 @@ MonoBehaviour:
   deltaAngle: 15
   base_angle: 30
   trunk_mat: {fileID: 2100000, guid: ecf7fe00577cb434c8d165f1fcd4b652, type: 2}
+  positions: []
+--- !u!114 &1583251949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1583251942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1520baf2a073e984ca53787767ed67c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grammars:
+  - {fileID: 11400000, guid: b7ebbc0cd7819444e88c00d9c2ecdc4b, type: 2}
+  forestSize: 5
+  elementSpacing: 4
+  planet: {fileID: 1583251942}
+  leaf: {fileID: 1918718762059779754, guid: 1fe3349c383455a44beba9da6435b435, type: 3}
+  trunk_mat: {fileID: 2100000, guid: ecf7fe00577cb434c8d165f1fcd4b652, type: 2}
+  g1: {fileID: 11400000, guid: b7ebbc0cd7819444e88c00d9c2ecdc4b, type: 2}
 --- !u!1001 &1837576765
 PrefabInstance:
   m_ObjectHideFlags: 0

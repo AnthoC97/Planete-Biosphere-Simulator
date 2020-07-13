@@ -33,9 +33,11 @@ public class SpawnerGenerator : MonoBehaviour
     public Material trunk_mat;
 
     Planet planet;
+    [HideInInspector]
+    public List<Vector3> positions;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         planet = GetComponent<Planet>();
 
@@ -53,7 +55,7 @@ public class SpawnerGenerator : MonoBehaviour
     void RandomLinear(SpawnerConfig config)
     {
         Random.InitState(config.seed);
-        List<Vector3> positions = new List<Vector3>();
+        positions = new List<Vector3>();
 
         for (int i = 0; i < config.maxIteration; ++i)
         {
@@ -86,22 +88,22 @@ public class SpawnerGenerator : MonoBehaviour
             {
                 //Debug.Log("OOOOOOOOOOOOOOOOK");
                 //float x_old = pos.x, y_old = pos.y;
-                for (int x = 0; x < forestSize; x += elementSpacing)
-                {
-                    for (int z = 0; z < forestSize; z += elementSpacing)
-                    {
-                        Vector3 position = Quaternion.Euler(x, 0, z) * pos;
-                        Vector3 offset = new Vector3(Random.Range(-0.75f, 0.75f), 0f, Random.Range(-0.75f, 0.75f));
-                        Vector3 rotation = new Vector3(Random.Range(0, 5f), Random.Range(0, 360f), Random.Range(0, 5f));
-                        Vector3 scale = Vector3.one * Random.Range(0.75f, 1.25f);
+                //for (int x = 0; x < forestSize; x += elementSpacing)
+                //{
+                //    for (int z = 0; z < forestSize; z += elementSpacing)
+                //    {
+                //        Vector3 position = Quaternion.Euler(x, 0, z) * pos;
+                //        Vector3 offset = new Vector3(Random.Range(-0.75f, 0.75f), 0f, Random.Range(-0.75f, 0.75f));
+                //        Vector3 rotation = new Vector3(Random.Range(0, 5f), Random.Range(0, 360f), Random.Range(0, 5f));
+                //        Vector3 scale = Vector3.one * Random.Range(0.75f, 1.25f);
 
 
 
-                        string word = GenerateWord(g1, 2);
-                        WordTo2DTree(word, position, Quaternion.FromToRotation(Vector3.up, (pos + position).normalized), 3);
+                //        string word = GenerateWord(g1, 2);
+                //        WordTo2DTree(word, position, Quaternion.FromToRotation(Vector3.up, (pos + position).normalized), 3);
 
-                    }
-                }
+                //    }
+                //}
 
                 GameObject go = GameObject.Instantiate(config.obj);
                 go.transform.position = pos;

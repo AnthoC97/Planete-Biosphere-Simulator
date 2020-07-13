@@ -79,6 +79,7 @@ public class GeneticTree : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
+        if (timer >= 10) { enabled = false; return; }
         //processSelection
         if (timer % 10 < 5)
         {

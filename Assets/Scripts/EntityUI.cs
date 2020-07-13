@@ -7,6 +7,7 @@ public class EntityUI : MonoBehaviour
 {
     private Dictionary<string, ICanvasElement> UIElements;
     private Dictionary<string, DynValue> sharedContext;
+    private Dictionary<string, string> translationDictionary;
 
     public void Awake()
     {
@@ -30,8 +31,12 @@ public class EntityUI : MonoBehaviour
                 ((Slider) pair.Value).value =
                     (float) sharedContext[pair.Key].CastToNumber();
             } else if (pair.Value is Text) {
-                ((Text) pair.Value).text =
-                    sharedContext[pair.Key].CastToString();
+                string text = sharedContext[pair.Key].CastToString();
+                if (translationDictionary != null
+                        && translationDictionary.ContainsKey(text)) {
+                    text = translationDictionary[text];
+                }
+                ((Text) pair.Value).text = text;
             }
         }
     }
@@ -39,5 +44,14 @@ public class EntityUI : MonoBehaviour
     public void AddElement(string key, ICanvasElement element)
     {
         UIElements[key] = element;
+    }
+
+    public void AddTranslationTable(Table translationTable)
+    {
+        translationDictionary = new Dictionary<string, string>();
+
+        foreach (var pair in translationTable.Pairs) {
+            translationDictionary[pair.Key.String] = pair.Value.String;
+        }
     }
 }

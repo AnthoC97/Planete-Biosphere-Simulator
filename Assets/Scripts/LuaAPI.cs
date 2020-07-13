@@ -65,7 +65,8 @@ public class LuaAPI
         return slider;
     }
 
-    public GameObject AddUIText(GameObject gameObject, string sharedVar)
+    public GameObject AddUIText(GameObject gameObject, string sharedVar,
+            DynValue translationTable = null)
     {
         EntityUI entityUI = gameObject.GetComponent<EntityUI>();
         Transform canvasTransform = gameObject.transform.Find("Canvas");
@@ -87,6 +88,17 @@ public class LuaAPI
         text.transform.localPosition = pos;
 
         entityUI.AddElement(sharedVar, textComponent);
+
+        if (translationTable != null
+                && translationTable.Type != DataType.Void) {
+            if (translationTable.Type == DataType.Table) {
+                entityUI.AddTranslationTable(translationTable.Table);
+            } else {
+                Debug.LogError("[AddUIText] Translation table is not a Table.");
+                Debug.LogError("[AddUIText] Translation table is a "
+                        + translationTable.Type);
+            }
+        }
 
         return text;
     }

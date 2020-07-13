@@ -27,7 +27,7 @@ public class CreatureParameters : MonoBehaviour
 
     public void loadscript()
     {
-        DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/lua");
+        DirectoryInfo dir = new DirectoryInfo(Application.dataPath /*+ "/lua"*/);
         if (!dir.Exists)
             dir.Create();
 
@@ -47,6 +47,12 @@ public class CreatureParameters : MonoBehaviour
 
     public void Generate()
     {
-
+        for (int i = 0; i < groupCount.value; ++i) {
+            Vector3 groupPosition = Random.onUnitSphere;
+            for (int j = 0; j < groupSize.value; ++j) {
+                EntityFactory.AddEntityInWorld(creatureName.text,
+                        groupPosition + Random.insideUnitSphere / 10);
+            }
+        }
     }
 }

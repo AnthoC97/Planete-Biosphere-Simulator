@@ -68,6 +68,50 @@ public class EntityFactory
         return true;
     }
 
+    public static bool AddEntityInWorld(CreatureParameters parameters,
+            Vector3 position)
+    {
+        // TODO Get the actual entity type configuration
+        string entityTypeName = parameters.creatureName.text;
+        string scriptPath = parameters.ScriptDropDown.options[parameters.ScriptDropDown.value].text;
+        Mesh configuredMesh = GameObject.Instantiate(rabbitPrefab.transform.Find("Model").gameObject.GetComponent<MeshFilter>().sharedMesh);
+        Type configuredBehaviour = typeof(ScriptedBehaviour);
+
+        rabbitPrefab.SetActive(false);
+        GameObject newEntity = GameObject.Instantiate(rabbitPrefab);
+        rabbitPrefab.SetActive(true);
+
+        newEntity.name = entityTypeName;
+        newEntity.transform.position = position;
+
+        GameObject model = newEntity.transform.Find("Model").gameObject;
+        MeshFilter meshFilter = model.GetComponent<MeshFilter>();
+        meshFilter.sharedMesh = configuredMesh;
+
+        MeshRenderer renderer = model.GetComponent<MeshRenderer>();
+
+        if (entityTypeName == "rabbit") {
+            scriptPath = "rabbitAI.lua";
+            renderer.material.SetColor("_BaseColor", Color.white);
+        } else if (entityTypeName == "fox") {
+            scriptPath = "foxAI.lua";
+            renderer.material.SetColor("_BaseColor", Color.red);
+        }
+
+        ScriptedBehaviour scriptedBehaviour =
+            newEntity.GetComponent<ScriptedBehaviour>();
+        if (configuredBehaviour == typeof(ScriptedBehaviour)) {
+            scriptedBehaviour.scriptPath = scriptPath;
+        } else {
+            scriptedBehaviour.enabled = false;
+            newEntity.AddComponent(configuredBehaviour);
+        }
+
+        newEntity.SetActive(true);
+
+        return true;
+    }
+
     public static bool AddEntityInWorld(string entityTypeName, float x, float y,
             float z)
     {

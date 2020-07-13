@@ -32,12 +32,12 @@ public class GeneratorInterface : MonoBehaviour
         if (!dir.Exists)
             dir.Create();
 
-        Debug.Log(Application.dataPath + "/lua");
+        //Debug.Log(Application.dataPath + "/lua");
         drop.ClearOptions();
         List<string> list = new List<string>();
         foreach (FileInfo f in dir.GetFiles())
         {
-            list.Add(f.Name);
+            if(f.Name.EndsWith(".lua")) list.Add(f.Name);
         }
         drop.AddOptions(list);
     }
@@ -53,7 +53,7 @@ public class GeneratorInterface : MonoBehaviour
         StaticSettings.planetProbaMutation = parameters[5].value;
         StaticSettings.planetIcosahedronSubDiv = (int)parameters[6].value;
         if (drop.options.Count > 0)
-            StaticSettings.planetScript = Application.dataPath + drop.options[drop.value].text;
+            StaticSettings.planetScript = Application.dataPath+"/lua/"+ drop.options[drop.value].text;
 
         SceneManager.LoadScene(1);
     }

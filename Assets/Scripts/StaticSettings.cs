@@ -14,5 +14,5 @@ public class StaticSettings
     public static int planetSelectedCount = 8;
     public static float planetProbaMutation = 0.2f;
     public static int planetIcosahedronSubDiv = 2;
-    public static string planetScript = Application.dataPath + "/../scorer.lua";
+    public static string planetScript = Application.dataPath + "/lua/scorer.lua";
 }

@@ -17,11 +17,14 @@ public class Interfaces : MonoBehaviour
     {
         if (Keyboard.current.cKey.wasPressedThisFrame && !creaturesParam.activeInHierarchy)
             creaturesParam.SetActive(true);
-        else if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        else if (Keyboard.current.escapeKey.wasPressedThisFrame && !creaturesParam.activeInHierarchy)
         {
-            creaturesParam.SetActive(false);
             menu.SetActive(!menu.activeInHierarchy);
             quitCheck.SetActive(false);
+        }
+        else if (Keyboard.current.escapeKey.wasPressedThisFrame && creaturesParam.activeInHierarchy)
+        {
+            creaturesParam.SetActive(false);
         }
     }
 }

@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1332555942449095394
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5319391271858549324}
+  - component: {fileID: 5757964184040561222}
+  m_Layer: 0
+  m_Name: Planet4Nico
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5319391271858549324
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332555942449095394}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 614.1971, y: 195.20784, z: -76.82905}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5757964184040561222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332555942449095394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebd9d716dfe799443bce6565ab571275, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seedPlains: 360311
+  frequencyPlains: 4.373326
+  fractalGainPlains: 0.49
+  octavePlains: 0
+  lacunarityPlains: 4.3
+  seedMountains: 0
+  frequencyMountains: 1.2917066
+  fractalGainMountains: 0.57
+  octaveMountains: 0
+  lacunarityMountains: 2.8
+  seedMask: 877388
+  frequencyMask: 0.22133827
+  fractalGainMask: 0.53
+  octaveMask: 0
+  lacunarityMask: 3.2
+  falloffSelect: 0.5
+  thresholdSelect: 0
+  numStepsSelect: 2
+  selectInterpType: 10
+  fractalNoiseTypePlains: 1
+  interpPlains: 1
+  fractalTypePlains: 0
+  fractalNoiseTypeMountains: 0
+  interpMountains: 0
+  fractalTypeMountains: 0
+  fractalNoiseTypeMask: 0
+  interpMask: 1
+  fractalTypeMask: 1
+  gradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 0.81766295, b: 0.13207549, a: 1}
+    key1: {r: 0.49056602, g: 0.39023376, b: 0.023139903, a: 1}
+    key2: {r: 0.19603634, g: 0.46226418, b: 0.065414734, a: 0}
+    key3: {r: 0.46873146, g: 0.4716981, b: 0.4672481, a: 0}
+    key4: {r: 1, g: 1, b: 1, a: 0}
+    key5: {r: 1, g: 1, b: 1, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 771
+    ctime1: 2313
+    ctime2: 3662
+    ctime3: 6168
+    ctime4: 65535
+    ctime5: 65535
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 1
+    m_NumColorKeys: 5
+    m_NumAlphaKeys: 2

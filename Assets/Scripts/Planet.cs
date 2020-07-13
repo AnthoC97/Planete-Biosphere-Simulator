@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.Serialization;
 
 [Serializable]
 public struct LODConfig
@@ -70,6 +68,8 @@ public class Planet : MonoBehaviour
         if(waterPercent > 0.0f)
         {
             waterMesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            waterMesh.name = "WaterSphere";
+            waterMesh.transform.SetParent(transform);
             waterMesh.transform.localScale = Vector3.one * (radius +radius*waterPercent) * 2;
             MeshRenderer mr = waterMesh.GetComponent<MeshRenderer>();
             mr.sharedMaterial = waterMaterial;
@@ -92,6 +92,12 @@ public class Planet : MonoBehaviour
 
     private void Initialize()
     {
+        if(StaticSettings.useStaticSettings)
+        {
+            radius = StaticSettings.planetRadius;
+            waterPercent = StaticSettings.waterPercent;
+        }
+
         if (meshFilters == null || meshFilters.Length == 0)
         {
             meshFilters = new MeshFilter[6];
@@ -105,7 +111,7 @@ public class Planet : MonoBehaviour
         {
             if (meshFilters[i] == null)
             {
-                GameObject meshObj = new GameObject("mesh");
+                GameObject meshObj = new GameObject("TerrainMesh");
                 meshObj.transform.parent = transform;
                 meshObj.AddComponent<MeshRenderer>().sharedMaterial = material;
                 meshFilters[i] = meshObj.AddComponent<MeshFilter>();
@@ -151,9 +157,9 @@ public class Planet : MonoBehaviour
         }
     }
 
-    public void UpdateNoiseGenerator(PBSNoiseGenerator noiseGenerator)
+    public void UpdateNoiseGenerator()
     {
-        this.noiseGenerator = noiseGenerator;
+        noiseGenerator = pbsNoiseScript.GetNoiseGenerator();
         GenerateMesh();
     }
 

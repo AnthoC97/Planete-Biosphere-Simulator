@@ -53,13 +53,6 @@ function stats()
     localSharedContext["age"] = localSharedContext["age"] + 1 / 365 * Time.deltaTime;
     localSharedContext["stamina"] = localSharedContext["stamina"] - 1 * Time.deltaTime;
     check();
-
-    if (Input.GetKeyDown(KeyCode.KeypadPlus)) then
-        Time.timeScale = Time.timeScale * 2;
-    end
-    if (Input.GetKeyDown(KeyCode.KeypadMinus)) then
-        Time.timeScale = Time.timeScale / 2;
-    end
 end
 
 function check()

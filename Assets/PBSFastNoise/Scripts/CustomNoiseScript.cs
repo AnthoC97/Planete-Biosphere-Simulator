@@ -1,65 +1,66 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TreeEditor;
+﻿using MoonSharp.Interpreter;
 using UnityEngine;
 
+[MoonSharpUserData]
 public class CustomNoiseScript : PBSNoiseScript
 {
+    // Plains
     [Range(0, 999999)]
     public int seedPlains;
 
     [Range(0, 10)]
     public float frequencyPlains;
 
-    [Range(0f, 2)]
+    //[Range(0f, 2)]
     public float fractalGainPlains;
 
     //[Range(0, 20)]
     public int octavePlains;
 
-    [Range(0, 10)]
+    //[Range(0, 10)]
     public float lacunarityPlains;
 
-
+    // Mountains
     [Range(0, 10)]
     public int seedMountains;
 
     [Range(0, 10)]
     public float frequencyMountains;
 
-    [Range(0, 2)]
+    //[Range(0, 2)]
     public float fractalGainMountains;
 
     //[Range(0, 20)]
     public int octaveMountains;
 
-    [Range(0, 10)]
+    //[Range(0, 10)]
     public float lacunarityMountains;
 
 
+    // Select mask
     [Range(0, 999999)]
     public int seedMask;
 
     [Range(0, 10)]
     public float frequencyMask;
 
-    [Range(0, 2)]
+    //[Range(0, 2)]
     public float fractalGainMask;
 
     //[Range(0, 20)]
     public int octaveMask;
 
-    [Range(0, 10)]
+    //[Range(0, 10)]
     public float lacunarityMask;
 
 
-    [Range(0, 1)]
+    //[Range(0, 1)]
     public float falloffSelect;
 
-    [Range(-1, 1)]
+    //[Range(-1, 1)]
     public float thresholdSelect;
 
-    [Range(0, 4)]
+    //[Range(0, 4)]
     public int numStepsSelect;
 
     public SelectInterpType selectInterpType;
@@ -76,6 +77,39 @@ public class CustomNoiseScript : PBSNoiseScript
     public FastNoise.Interp interpMask;
     public FastNoise.FractalType fractalTypeMask;
 
+    /*[Range(0, 999999)]
+    public int seedCellular;
+
+    [Range(0, 10)]
+    public float frequencyCellular;
+
+    public FastNoise.CellularDistanceFunction cellularDistanceFunc;
+    [Min(1)]
+    public FastNoise.CellularReturnType cellularReturnType;
+
+    // Select cell mask
+    [Range(0, 999999)]
+    public int seedCellMask;
+
+    [Range(0, 10)]
+    public float frequencyCellMask;
+
+    public FractalNoiseType fractalNoiseTypeCellMask;
+    public FastNoise.Interp interpCellMask;
+    public FastNoise.FractalType fractalTypeCellMask;
+
+    //[Range(0, 1)]
+    public float falloffSelectCell;
+
+    //[Range(-1, 1)]
+    public float thresholdSelectCell;
+
+    //[Range(0, 4)]
+    public int numStepsSelectCell;
+
+    public SelectInterpType selectInterpTypeCell;*/
+
+
     public override PBSNoiseGenerator GetNoiseGenerator()
     {
         //return 5000; // Constant Exemple
@@ -86,28 +120,34 @@ public class CustomNoiseScript : PBSNoiseScript
         return a + b;*/
 
         /*PBSNoiseGenerator fractalGenerator = new FractalNoiseGenerator(FractalNoiseType.Simplex, 12345, 2f, 0.5f, FastNoise.Interp.Linear, FastNoise.FractalType.RigidMulti, 6, 1.7f);
-        //return fractalGenerator;
+        return fractalGenerator;
 
         PBSNoiseGenerator gen = fractalGenerator + 4;
 
-        PBSNoiseGenerator scaleModule = new ScaleBiasNoiseModule(fractalGenerator, 10, 0); // scale fractal by 10
-        return scaleModule;*/
-        PBSNoiseGenerator fractalPlaineGenerator = new FractalNoiseGenerator(fractalNoiseTypePlains, seedPlains, frequencyPlains, fractalGainPlains, interpPlains, fractalTypePlains, octavePlains, lacunarityPlains);
+        PBSNoiseGenerator scaleModule = new ScaleBiasNoiseModule(fractalGenerator, 10, 0); */
 
+        // Make a fractal noise for the plains
+        PBSNoiseGenerator fractalPlainGenerator = new FractalNoiseGenerator(fractalNoiseTypePlains, seedPlains, frequencyPlains, fractalGainPlains, interpPlains, fractalTypePlains, octavePlains, lacunarityPlains);
+        // Make a fractal noise for the mountains
         PBSNoiseGenerator fractalMountainsGenerator = new FractalNoiseGenerator(fractalNoiseTypeMountains, seedMountains, frequencyMountains, fractalGainMountains, interpMountains, fractalTypeMountains, octaveMountains, lacunarityMountains);
-        //PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(fractalMountainsGenerator, 100.0f, 0.1f);
-        //return scaleBiasGenerator;
-
+        // Make a fractal noise for the mask used to select between plains and mountains
         PBSNoiseGenerator maskGenerator = new FractalNoiseGenerator(fractalNoiseTypeMask, seedMask, frequencyMask, fractalGainMask, interpMask, fractalTypeMask, octaveMask, lacunarityMask);
+        // Select and can interpolate between plains and mountains with the mask
+        PBSNoiseGenerator result = new SelectNoiseModule(fractalPlainGenerator, fractalMountainsGenerator, maskGenerator, selectInterpType, falloffSelect, thresholdSelect, numStepsSelect);
 
-        PBSNoiseGenerator result = new SelectNoiseModule(fractalPlaineGenerator, fractalMountainsGenerator, maskGenerator, selectInterpType, falloffSelect, thresholdSelect, numStepsSelect);
-        //return result;
+        // Exemple of cellular noise 
+        /*PBSNoiseGenerator cellular = new CellularNoiseGenerator(seedCellular, frequencyCellular, cellularDistanceFunc, cellularReturnType);
+        PBSNoiseGenerator maskCellGenerator = new FractalNoiseGenerator(fractalNoiseTypeCellMask, seedCellMask, frequencyCellMask, 0, interpCellMask, fractalTypeCellMask, 0, 0);
+        */
 
-        /*PBSNoiseGenerator addGenerator = result + 1;
-        PBSNoiseGenerator scaleGenerator = new ScaleBiasNoiseModule(addGenerator, 0.5f, 0.0f);*/
+        // Make the result clamp between 0 and 1
         PBSNoiseGenerator zeroOneResult = new ZeroOneNoiseModule(result);
-        PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(zeroOneResult, 0.2f, 0f);
 
+        // Exemple of domain warping
+        //PBSNoiseGenerator warpGen = new WarpModule(zeroOneResult, zeroOneResult, 0.5f, WarpIterationsType.Two);
+
+        // Multiply the result by 0.2 and add 0
+        PBSNoiseGenerator scaleBiasGenerator = new ScaleBiasNoiseModule(zeroOneResult, 0.2f, 0f);
         return scaleBiasGenerator;
     }
 

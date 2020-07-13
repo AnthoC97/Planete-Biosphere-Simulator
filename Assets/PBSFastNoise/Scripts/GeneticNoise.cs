@@ -14,6 +14,8 @@ public class GeneticNoise : MonoBehaviour
     [Min(0.5f)]
     public float interval = 1;
     public int populationSize = 10;
+    public int selectedCount = 8;
+    public float probaMutation = 0.2f;
 
     Planet planet;
     PBSNoiseScript noiseScript;
@@ -22,14 +24,16 @@ public class GeneticNoise : MonoBehaviour
     List<List<GeneticValue>> solutions;
     List<float> notes;
 
-    PBSNoiseGenerator bestNoiseGenerator;
     List<GeneticValue> bestSolution;
     float bestScore = Mathf.NegativeInfinity;
 
-    public int loopPointCount = 6;
+    public int NbSubdivision = 2;
 
     static Vector3[] scorerPoints;
     Script script;
+
+    public delegate void EndAlgoGenDelegate();
+    public event EndAlgoGenDelegate OnEndAlgoGen;
 
     private void OnEnable()
     {
@@ -37,11 +41,31 @@ public class GeneticNoise : MonoBehaviour
         SetupScorerPoints();
     }
 
+    private void OnDisable()
+    {
+        if (!planet.GetIstUsingNoiseGenetic()) return;
+#if UNITY_EDITOR
+        if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode && UnityEditor.EditorApplication.isPlaying) return;
+#endif
+        StopAllCoroutines();
+
+        if(OnEndAlgoGen != null) EndAlgoGen();
+    }
+
     void Start()
     {
         planet = GetComponent<Planet>();
         noiseScript = GetComponent<PBSNoiseScript>();
         if (!noiseScript) return;
+
+        if(StaticSettings.useStaticSettings)
+        {
+            interval = StaticSettings.planetIntervalBeforeNewGeneration;
+            populationSize = StaticSettings.planetPopulationSize;
+            selectedCount = StaticSettings.planetSelectedCount;
+            probaMutation = StaticSettings.planetProbaMutation;
+            NbSubdivision = StaticSettings.planetIcosahedronSubDiv;
+        }
 
         //Recupération de l'objet System.Type représentant le type sous-jacent de l'objet
         Type objectType = noiseScript.GetType();
@@ -51,7 +75,7 @@ public class GeneticNoise : MonoBehaviour
 
         // Setup script lua
         script = null;
-        if (File.Exists(Application.dataPath + "/../scorer.lua"))
+        if (File.Exists(StaticSettings.planetScript))
         {
             UserData.RegisterAssembly();
             UserData.RegisterType<Vector3>();
@@ -69,7 +93,7 @@ public class GeneticNoise : MonoBehaviour
             script.Globals["isNaN"] = (Func<float, bool>)IsNaN;
             script.Globals["isInfinity"] = (Func<float, bool>)IsInfinity;
 
-            script.DoFile("scorer.lua");
+            script.DoFile(StaticSettings.planetScript);
             populationSize = (int)script.Globals.Get("populationSize").Number;
         }
 
@@ -109,7 +133,7 @@ public class GeneticNoise : MonoBehaviour
             }
         }
 
-        planet.SetIsUsingNoiseGenetic(false);
+        if (OnEndAlgoGen != null) OnEndAlgoGen();
     }
 
     List<GeneticValue> Generate()
@@ -147,8 +171,18 @@ public class GeneticNoise : MonoBehaviour
             }
             else if(fieldInfo.FieldType.IsEnum)
             {
+                int min = 0;
                 int max = fieldInfo.FieldType.GetEnumValues().Length-1;
-                solution.Add(new EnumGenetic(UnityEngine.Random.Range(0, max), 0, max, fieldInfo.Name));
+                foreach (Attribute attribute in fieldInfo.GetCustomAttributes())
+                {
+                    switch (attribute)
+                    {
+                        case MinAttribute mina:
+                            min = (int)mina.min;
+                            break;
+                    }
+                }
+                solution.Add(new EnumGenetic(UnityEngine.Random.Range(0, max), min, max, fieldInfo.Name));
             }
         }
         return solution;
@@ -165,6 +199,7 @@ public class GeneticNoise : MonoBehaviour
             geneticVal.ApplyValue(noiseScript);
         }
 
+        // Get Score
         if (script != null)
         {
             DynValue res = script.Call(script.Globals["getScore"]);
@@ -176,10 +211,9 @@ public class GeneticNoise : MonoBehaviour
         {
             bestScore = score;
             bestSolution = solution;
-            bestNoiseGenerator = noiseScript.GetNoiseGenerator();
-            if(script != null) script.Globals["bestScore"] = bestScore;
-            print("new best score: "+ bestScore);
-            planet.UpdateNoiseGenerator(bestNoiseGenerator);
+            if (script != null) script.Globals["bestScore"] = bestScore;
+            planet.UpdateNoiseGenerator();
+            print("new best score: " + bestScore);
         }
 
         return score;
@@ -199,7 +233,7 @@ public class GeneticNoise : MonoBehaviour
 
     List<List<GeneticValue>> Selector()
     {
-        int nBest = Mathf.Min(notes.Count-1, 8);
+        int nBest = Mathf.Min(notes.Count-1, selectedCount);
         List<List<GeneticValue>> selections = new List<List<GeneticValue>>();
 
         for(int i=0; i<nBest; ++i)
@@ -217,31 +251,40 @@ public class GeneticNoise : MonoBehaviour
     List<GeneticValue> CrossOperator(List<GeneticValue> solution1, List<GeneticValue> solution2)
     {
         int num = solution1.Count/2;
-        List<GeneticValue> newSolution = solution1.GetRange(0, num-1);
-        newSolution.AddRange(solution2.GetRange(num, solution2.Count-num-1));
+        List<GeneticValue> newSolution = new List<GeneticValue>();//solution1.GetRange(0, num-1);
+        for(int i=0; i<num; ++i)
+        {
+            newSolution.Add((GeneticValue)solution1[i].Clone());
+        }
+        //newSolution.AddRange(solution2.GetRange(num, solution2.Count-num));
+        for (int i = num; i < solution2.Count; ++i)
+        {
+            newSolution.Add((GeneticValue)solution2[i].Clone());
+        }
         return newSolution;
     }
 
     List<GeneticValue> MutationOperator(List<GeneticValue> solution)
     {
-        float probaMutation = 0.2f;
-        if (probaMutation > UnityEngine.Random.value) return solution;
+        if (probaMutation < UnityEngine.Random.value) return solution;
         int randIndex = UnityEngine.Random.Range(0, solution.Count - 1);
-        solution[randIndex].SetValue(solution[randIndex].GetRandomValue());
-        return solution;
+        List<GeneticValue> sol = new List<GeneticValue>(solution);
+        //solution[randIndex].SetValue(solution[randIndex].GetRandomValue());
+        sol[randIndex] = (GeneticValue)sol[randIndex].Clone();
+        sol[randIndex].SetValue(sol[randIndex].GetRandomValue());
+        return sol;
     }
 
     private void OnDrawGizmos()
     {
         if (!debug) return;
-
-        if (bestNoiseGenerator == null) return;
+        if (!enabled) return;
 
         Gizmos.color = Color.green;
-
+        PBSNoiseGenerator NoiseGenerator = planet.noiseGenerator;
         foreach (Vector3 point in scorerPoints)
         {
-            float elevation = bestNoiseGenerator.GetNoise3D(point);
+            float elevation = NoiseGenerator.GetNoise3D(point);
             elevation = Mathf.Clamp(elevation, 0, 1);
             if (float.IsNaN(elevation)) elevation = 0;
             Gizmos.DrawWireSphere(point * (1 + elevation) * planet.radius, 1.0f);
@@ -251,35 +294,112 @@ public class GeneticNoise : MonoBehaviour
     private void SetupScorerPoints()
     {
         List<Vector3> listPoints = new List<Vector3>();
-        HashSet<string> hashPoints = new HashSet<string>();
-        float x, y, z, xy;                              // vertex position
 
-        float sectorStep = 2 * Mathf.PI / loopPointCount;
-        float stackStep = Mathf.PI / loopPointCount;
-        float sectorAngle, stackAngle;
+        // An icosahedron has 12 vertices, and
+        // since it's completely symmetrical the
+        // formula for calculating them is kind of
+        // symmetrical too:
 
-        for (int i = 0; i <= loopPointCount; ++i)
+        List<TriangleIndex> m_Polygons = new List<TriangleIndex>();
+
+        float t = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;
+
+        listPoints.Add(new Vector3(-1, t, 0).normalized);
+        listPoints.Add(new Vector3(1, t, 0).normalized);
+        listPoints.Add(new Vector3(-1, -t, 0).normalized);
+        listPoints.Add(new Vector3(1, -t, 0).normalized);
+        listPoints.Add(new Vector3(0, -1, t).normalized);
+        listPoints.Add(new Vector3(0, 1, t).normalized);
+        listPoints.Add(new Vector3(0, -1, -t).normalized);
+        listPoints.Add(new Vector3(0, 1, -t).normalized);
+        listPoints.Add(new Vector3(t, 0, -1).normalized);
+        listPoints.Add(new Vector3(t, 0, 1).normalized);
+        listPoints.Add(new Vector3(-t, 0, -1).normalized);
+        listPoints.Add(new Vector3(-t, 0, 1).normalized);
+
+        // And here's the formula for the 20 sides,
+        // referencing the 12 vertices we just created.
+        m_Polygons.Add(new TriangleIndex(0, 11, 5));
+        m_Polygons.Add(new TriangleIndex(0, 5, 1));
+        m_Polygons.Add(new TriangleIndex(0, 1, 7));
+        m_Polygons.Add(new TriangleIndex(0, 7, 10));
+        m_Polygons.Add(new TriangleIndex(0, 10, 11));
+        m_Polygons.Add(new TriangleIndex(1, 5, 9));
+        m_Polygons.Add(new TriangleIndex(5, 11, 4));
+        m_Polygons.Add(new TriangleIndex(11, 10, 2));
+        m_Polygons.Add(new TriangleIndex(10, 7, 6));
+        m_Polygons.Add(new TriangleIndex(7, 1, 8));
+        m_Polygons.Add(new TriangleIndex(3, 9, 4));
+        m_Polygons.Add(new TriangleIndex(3, 4, 2));
+        m_Polygons.Add(new TriangleIndex(3, 2, 6));
+        m_Polygons.Add(new TriangleIndex(3, 6, 8));
+        m_Polygons.Add(new TriangleIndex(3, 8, 9));
+        m_Polygons.Add(new TriangleIndex(4, 9, 5));
+        m_Polygons.Add(new TriangleIndex(2, 4, 11));
+        m_Polygons.Add(new TriangleIndex(6, 2, 10));
+        m_Polygons.Add(new TriangleIndex(8, 6, 7));
+        m_Polygons.Add(new TriangleIndex(9, 8, 1));
+
+        var midPointCache = new Dictionary<int, int>();
+
+        for (int i = 0; i < NbSubdivision; i++)
         {
-            stackAngle = Mathf.PI / 2 - i * stackStep;  // starting from pi/2 to -pi/2
-            xy = Mathf.Cos(stackAngle);                 // cos(u)
-            z = Mathf.Sin(stackAngle);                  // sin(u)
-
-            // add (sectorCount+1) vertices per stack
-            // the first and last vertices have same position and normal, but different tex coords
-            for (int j = 0; j <= loopPointCount; ++j)
+            var newPolys = new List<TriangleIndex>();
+            foreach (var poly in m_Polygons)
             {
-                sectorAngle = j * sectorStep;           // starting from 0 to 2pi
-
-                // vertex position (x, y, z)
-                x = xy * Mathf.Cos(sectorAngle);             // r * cos(u) * cos(v)
-                y = xy * Mathf.Sin(sectorAngle);             // r * cos(u) * sin(v)
-
-                Vector3 point = new Vector3(x, y, z);
-                if(hashPoints.Add(point.ToString()))
-                    listPoints.Add(point);
+                int a = poly.a;
+                int b = poly.b;
+                int c = poly.c;
+                // Use GetMidPointIndex to either create a
+                // new vertex between two old vertices, or
+                // find the one that was already created.
+                int ab = GetMidPointIndex(midPointCache, a, b, ref listPoints);
+                int bc = GetMidPointIndex(midPointCache, b, c, ref listPoints);
+                int ca = GetMidPointIndex(midPointCache, c, a, ref listPoints);
+                // Create the four new polygons using our original
+                // three vertices, and the three new midpoints.
+                newPolys.Add(new TriangleIndex(a, ab, ca));
+                newPolys.Add(new TriangleIndex(b, bc, ab));
+                newPolys.Add(new TriangleIndex(c, ca, bc));
+                newPolys.Add(new TriangleIndex(ab, bc, ca));
             }
+            // Replace all our old polygons with the new set of
+            // subdivided ones.
+            m_Polygons = newPolys;
         }
+
         scorerPoints = listPoints.ToArray();
+    }
+
+    public int GetMidPointIndex(Dictionary<int, int> cache, int indexA, int indexB, ref List<Vector3> listPoints)
+    {
+        // We create a key out of the two original indices
+        // by storing the smaller index in the upper two bytes
+        // of an integer, and the larger index in the lower two
+        // bytes. By sorting them according to whichever is smaller
+        // we ensure that this function returns the same result
+        // whether you call
+        // GetMidPointIndex(cache, 5, 9)
+        // or...
+        // GetMidPointIndex(cache, 9, 5)
+        int smallerIndex = Mathf.Min(indexA, indexB);
+        int greaterIndex = Mathf.Max(indexA, indexB);
+        int key = (smallerIndex << 16) + greaterIndex;
+        // If a midpoint is already defined, just return it.
+        int ret;
+        if (cache.TryGetValue(key, out ret))
+            return ret;
+        // If we're here, it's because a midpoint for these two
+        // vertices hasn't been created yet. Let's do that now!
+        Vector3 p1 = listPoints[indexA];
+        Vector3 p2 = listPoints[indexB];
+        Vector3 middle = Vector3.Lerp(p1, p2, 0.5f).normalized;
+
+        ret = listPoints.Count;
+        listPoints.Add(middle);
+
+        cache.Add(key, ret);
+        return ret;
     }
 
     public static Vector3[] GetScorerPoints()
@@ -296,9 +416,34 @@ public class GeneticNoise : MonoBehaviour
     {
         return float.IsInfinity(value);
     }
+
+    private void EndAlgoGen()
+    {
+        // Apply best solution
+        foreach (GeneticValue geneticVal in bestSolution)
+        {
+            geneticVal.ApplyValue(noiseScript);
+        }
+        planet.UpdateNoiseGenerator();
+        planet.SetIsUsingNoiseGenetic(false);
+        if (OnEndAlgoGen != null) OnEndAlgoGen();
+    }
 }
 
-public abstract class GeneticValue
+public class TriangleIndex
+{
+    public int a;
+    public int b;
+    public int c;
+    public TriangleIndex(int a, int b, int c)
+    {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+    }
+}
+
+public abstract class GeneticValue : ICloneable
 {
     protected string name;
 
@@ -313,6 +458,11 @@ public abstract class GeneticValue
     public virtual object GetRandomValue()
     {
         return null;
+    }
+
+    public object Clone()
+    {
+        return this.MemberwiseClone();
     }
 }
 

@@ -44,9 +44,12 @@ public class GeneticNoise : MonoBehaviour
     private void OnDisable()
     {
         if (!planet.GetIstUsingNoiseGenetic()) return;
+#if UNITY_EDITOR
+        if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode && UnityEditor.EditorApplication.isPlaying) return;
+#endif
         StopAllCoroutines();
 
-        EndAlgoGen();
+        if(OnEndAlgoGen != null) EndAlgoGen();
     }
 
     void Start()
@@ -90,7 +93,7 @@ public class GeneticNoise : MonoBehaviour
             script.Globals["isNaN"] = (Func<float, bool>)IsNaN;
             script.Globals["isInfinity"] = (Func<float, bool>)IsInfinity;
 
-            script.DoFile("scorer.lua");
+            script.DoFile(StaticSettings.planetScript);
             populationSize = (int)script.Globals.Get("populationSize").Number;
         }
 

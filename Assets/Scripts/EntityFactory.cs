@@ -6,6 +6,10 @@ public class EntityFactory
     public static GameObject rabbitPrefab;
     public static GameObject sliderPrefab;
     public static GameObject textPrefab;
+    public static Mesh cubeMesh;
+    public static Mesh sphereMesh;
+    public static Mesh capsuleMesh;
+    public static Mesh cylinderMesh;
 
     public EntityFactory()
     {
@@ -24,6 +28,27 @@ public class EntityFactory
                 textPrefab =
                     rabbitPrefab.transform.Find("Canvas/State").gameObject;
             }
+        }
+
+        if (cubeMesh == null) {
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cubeMesh = cube.GetComponent<MeshFilter>().mesh;
+            GameObject.Destroy(cube);
+
+            GameObject sphere =
+                GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphereMesh = sphere.GetComponent<MeshFilter>().mesh;
+            GameObject.Destroy(sphere);
+
+            GameObject capsule =
+                GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            capsuleMesh = capsule.GetComponent<MeshFilter>().mesh;
+            GameObject.Destroy(capsule);
+
+            GameObject cylinder =
+                GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            cylinderMesh = cylinder.GetComponent<MeshFilter>().mesh;
+            GameObject.Destroy(cylinder);
         }
     }
 
@@ -79,7 +104,7 @@ public class EntityFactory
         var colorDropdownValue = parameters.ColorDropdown.value;
         string colorText =
             parameters.ColorDropdown.options[colorDropdownValue].text;
-        Mesh configuredMesh = GameObject.Instantiate(rabbitPrefab.transform.Find("Model").gameObject.GetComponent<MeshFilter>().sharedMesh);
+        Mesh configuredMesh = MeshFromInt((int) parameters.MeshNum.value);
         Type configuredBehaviour = typeof(ScriptedBehaviour);
 
         rabbitPrefab.SetActive(false);
@@ -95,15 +120,7 @@ public class EntityFactory
 
         MeshRenderer renderer = model.GetComponent<MeshRenderer>();
 
-        renderer.material.SetColor("_BaseColor", TextToColor(colorText));
-
-        if (entityTypeName == "rabbit") {
-            scriptPath = "rabbitAI.lua";
-            renderer.material.SetColor("_BaseColor", Color.white);
-        } else if (entityTypeName == "fox") {
-            scriptPath = "foxAI.lua";
-            renderer.material.SetColor("_BaseColor", Color.red);
-        }
+        renderer.material.SetColor("_BaseColor", ColorFromText(colorText));
 
         ScriptedBehaviour scriptedBehaviour =
             newEntity.GetComponent<ScriptedBehaviour>();
@@ -125,7 +142,7 @@ public class EntityFactory
         return AddEntityInWorld(entityTypeName, new Vector3(x, y, z));
     }
 
-    private static Color TextToColor(string text)
+    private static Color ColorFromText(string text)
     {
         switch (text) {
             case "Red":
@@ -145,8 +162,22 @@ public class EntityFactory
             case "Cyan":
                 return Color.cyan;
             default:
-                Debug.Log("[TextToColor] Unknown color " + text + ".");
+                Debug.Log("[ColorFromText] Unknown color " + text + ".");
                 return Color.white;
+        }
+    }
+
+    private static Mesh MeshFromInt(int number)
+    {
+        switch (number) {
+            case 0:
+                return cylinderMesh;
+            case 1:
+                return cubeMesh;
+            case 2:
+                return sphereMesh;
+            default:
+                return cubeMesh;
         }
     }
 }

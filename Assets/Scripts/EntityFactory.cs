@@ -73,7 +73,12 @@ public class EntityFactory
     {
         // TODO Get the actual entity type configuration
         string entityTypeName = parameters.creatureName.text;
-        string scriptPath = parameters.ScriptDropDown.options[parameters.ScriptDropDown.value].text;
+        var scriptDropDownValue = parameters.ScriptDropDown.value;
+        string scriptPath =
+            parameters.ScriptDropDown.options[scriptDropDownValue].text;
+        var colorDropdownValue = parameters.ColorDropdown.value;
+        string colorText =
+            parameters.ColorDropdown.options[colorDropdownValue].text;
         Mesh configuredMesh = GameObject.Instantiate(rabbitPrefab.transform.Find("Model").gameObject.GetComponent<MeshFilter>().sharedMesh);
         Type configuredBehaviour = typeof(ScriptedBehaviour);
 
@@ -89,6 +94,8 @@ public class EntityFactory
         meshFilter.sharedMesh = configuredMesh;
 
         MeshRenderer renderer = model.GetComponent<MeshRenderer>();
+
+        renderer.material.SetColor("_BaseColor", TextToColor(colorText));
 
         if (entityTypeName == "rabbit") {
             scriptPath = "rabbitAI.lua";
@@ -116,5 +123,30 @@ public class EntityFactory
             float z)
     {
         return AddEntityInWorld(entityTypeName, new Vector3(x, y, z));
+    }
+
+    private static Color TextToColor(string text)
+    {
+        switch (text) {
+            case "Red":
+                return Color.red;
+            case "Green":
+                return Color.green;
+            case "Blue":
+                return Color.blue;
+            case "White":
+                return Color.black;
+            case "Grey / Gray":
+                return Color.grey;
+            case "Magenta":
+                return Color.magenta;
+            case "Yellow":
+                return Color.yellow;
+            case "Cyan":
+                return Color.cyan;
+            default:
+                Debug.Log("[TextToColor] Unknown color " + text + ".");
+                return Color.white;
+        }
     }
 }

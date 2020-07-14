@@ -13,6 +13,7 @@ public class CreatureParameters : MonoBehaviour
     public Slider groupCount;
     public Slider groupSize;
     public Dropdown ScriptDropDown;
+    public Dropdown ColorDropdown;
     public Image img;
     List<Sprite> sprites;
 

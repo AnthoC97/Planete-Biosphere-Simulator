@@ -97,7 +97,7 @@ public class GeneticTree : MonoBehaviour
                 {
                     Vector3 position = trees_position[i];
                     Vector3 pos = pos_in_sphere[i];
-                    Debug.Log("TEST : " + trees_phenotype.Count);
+                    //Debug.Log("TEST : " + trees_phenotype.Count);
                     Destroy(trees_phenotype[i]);
                     trees_phenotype.RemoveAt(i);
                     string word = GenerateWord(g1, trees_genotype[i].level);
@@ -149,7 +149,7 @@ public class GeneticTree : MonoBehaviour
     public GameObject WordTo2DTree(string word, Vector3 pos, Tree tree, string name, Quaternion q)
     {
         float yMin, yMax, xMin, xMax; //y for height, x for width
-        Debug.Log(word);
+        //Debug.Log(word);
         Vector3 pivot = pos;
         Vector3 old_pivot = Vector3.zero;
         yMin = yMax = pos.y;
@@ -173,7 +173,7 @@ public class GeneticTree : MonoBehaviour
                 old_pivot = pivot;
                 pivot += q * Quaternion.Euler(0, 0, angle) * new Vector3(0, tree.trunc_height, 0);
                 tmp_trunc_len = tree.trunc_height;
-                Debug.Log("tmp_len : " + tmp_trunc_len);
+                //Debug.Log("tmp_len : " + tmp_trunc_len);
                 ++i;
             }
             else if (c == 'A')
@@ -214,7 +214,7 @@ public class GeneticTree : MonoBehaviour
                 angle += -tree.delta_angle;
             }
             if(isBranch)
-            { 
+            {
                 float tmp_y = (Mathf.Cos(angle * Mathf.PI / 180) * tmp_trunc_len) + old_pivot.y;
                 float tmp_x = (Mathf.Sin(angle * Mathf.PI / 180) * tmp_trunc_len) + old_pivot.x;
                 old_pivot = pivot;
@@ -231,8 +231,8 @@ public class GeneticTree : MonoBehaviour
         }
         tree.height = Mathf.Abs(yMax - yMin);
         tree.radius = Mathf.Abs(xMax - xMin);
-        Debug.Log("Tree height : " + tree.height);
-        Debug.Log("Tree width : " + tree.radius);
+        //Debug.Log("Tree height : " + tree.height);
+        //Debug.Log("Tree width : " + tree.radius);
         return treeGo;
     }
 
@@ -266,9 +266,9 @@ public class GeneticTree : MonoBehaviour
         trees_genotype.RemoveAt((int)name[name.Length-1]);
         trees_phenotype.RemoveAt((int)name[name.Length - 1]);
         Destroy(GameObject.Find(name));
-        
+
     }
-    
+
     //Fonctions spécifiques a l'aglo genetique
     public float Fitness(Tree t)
     {
@@ -344,7 +344,7 @@ public class GeneticTree : MonoBehaviour
             float height1, height2, radius1, radius2;
             int delta_angle1, delta_anlge2;
             height1 = alpha * t1.trunc_height + (1 - alpha) * t2.trunc_height;
-            Debug.Log("height : " + height1 + ", t1 height " + t1.height + ", t2 height" + t2.height);
+            //Debug.Log("height : " + height1 + ", t1 height " + t1.height + ", t2 height" + t2.height);
             height2 = alpha * t2.trunc_height + (1 - alpha) * t1.trunc_height;
             radius1 = alpha * t1.trunc_radius + (1 - alpha) * t2.trunc_radius;
             radius2 = alpha * t2.trunc_radius + (1 - alpha) * t1.trunc_radius;
@@ -414,7 +414,7 @@ public class GeneticTree : MonoBehaviour
 
     public void ReplaceTrees()
     {
-        Debug.Log("tree count : "+trees_position.Count);
+        //Debug.Log("tree count : "+trees_position.Count);
         foreach(GameObject g in trees_phenotype)
         {
             Destroy(g);
@@ -444,7 +444,7 @@ public class GeneticTree : MonoBehaviour
                                 index_pos++;
                                 if (pos_t.x == (Quaternion.Euler(x, 0f, z) * pos).x && pos_t.z == (Quaternion.Euler(x, 0f, z) * pos).z)
                                 {
-                                    Debug.Log("Index : " + index_pos);
+                                    //Debug.Log("Index : " + index_pos);
                                     string word = GenerateWord(trees_genotype[index_pos].g, trees_genotype[index_pos].level);
                                     trees_phenotype.Add(WordTo2DTree(word, pos_t, trees_genotype[index_pos], "tree_" + index_pos, Quaternion.FromToRotation(Vector3.up, (pos + pos_t).normalized)));
                                     StartCoroutine(trees_genotype[index_pos].GetWater());

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GeneticTree : MonoBehaviour
 {
@@ -26,6 +27,9 @@ public class GeneticTree : MonoBehaviour
     private List<Vector3> positions;
     private bool process;
     private bool genetic_algorithm;
+
+    [SerializeField]
+    Text statusText = null;
 
     public void Start()
     {
@@ -79,7 +83,11 @@ public class GeneticTree : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= 10) { enabled = false; return; }
+        if (timer >= 10) {
+            enabled = false;
+            statusText.text = "Status: ready";
+            return;
+        }
         //processSelection
         if (timer % 10 < 5)
         {

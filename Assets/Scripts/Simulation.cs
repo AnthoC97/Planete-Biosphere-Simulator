@@ -58,15 +58,15 @@ public class Simulation : MonoBehaviour
             newWater.transform.position = Random.onUnitSphere;
         }
 
-        for (int i = 0; i < 50; ++i) {
-            EntityFactory.AddEntityInWorld("rabbit", Random.onUnitSphere);
-            //GameObject newRabbit = GameObject.Instantiate(rabbitPrefab);
-            //newRabbit.transform.position = Random.onUnitSphere;
-        }
+        //for (int i = 0; i < 50; ++i) {
+        //    EntityFactory.AddEntityInWorld("rabbit", Random.onUnitSphere);
+        //    //GameObject newRabbit = GameObject.Instantiate(rabbitPrefab);
+        //    //newRabbit.transform.position = Random.onUnitSphere;
+        //}
 
-        for (int i = 0; i < 10; ++i) {
-            EntityFactory.AddEntityInWorld("fox", Random.onUnitSphere);
-        }
+        //for (int i = 0; i < 10; ++i) {
+        //    EntityFactory.AddEntityInWorld("fox", Random.onUnitSphere);
+        //}
 
         GameObject[] entities = GameObject.FindGameObjectsWithTag(entityTag);
 

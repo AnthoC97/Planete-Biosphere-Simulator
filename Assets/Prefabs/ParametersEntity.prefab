@@ -1686,7 +1686,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Generer
+  m_Text: Generate
 --- !u!1 &5141305832696560806
 GameObject:
   m_ObjectHideFlags: 0
@@ -2791,7 +2791,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Planet Biosph\xE8re Simulator"
+  m_Text: Planet Biosphere Simulator
 --- !u!1 &6989452233014690067
 GameObject:
   m_ObjectHideFlags: 0

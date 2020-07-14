@@ -83,7 +83,10 @@ public class GeneticNoise : MonoBehaviour
 
             script = new Script();
             script.Options.ScriptLoader = new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
-            ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath + "/?", Application.dataPath + "/?.lua" };
+            ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)script.Options.ScriptLoader).ModulePaths = new string[] { Application.dataPath + "/?",
+                Application.dataPath + "/?.lua",
+                Application.dataPath + "/lua/?",
+                Application.dataPath + "/lua/?.lua" };
             script.Options.DebugPrint = Debug.Log;
 
             script.Globals["noiseScript"] = planet.pbsNoiseScript;

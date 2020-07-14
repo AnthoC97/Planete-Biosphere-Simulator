@@ -361,7 +361,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Retour
+  m_Text: Cancel
 --- !u!1 &3570252512000314098
 GameObject:
   m_ObjectHideFlags: 0
@@ -884,7 +884,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\xEAtes vous s\xFBre de vouloir quitter ?"
+  m_Text: Are you sure you want to quit?
 --- !u!1 &5559638661132517254
 GameObject:
   m_ObjectHideFlags: 0
@@ -1592,7 +1592,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Quitter
+  m_Text: Quit
 --- !u!1 &9158618502236037548
 GameObject:
   m_ObjectHideFlags: 0

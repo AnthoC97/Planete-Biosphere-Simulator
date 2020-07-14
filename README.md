@@ -18,6 +18,8 @@ allows you to edit the parameters that will be used for generating a planet.
 Tweak those parameters to your liking and click the "Generate" button. The
 planet generation process will begin. This process can take some time as it will
 try to generate a planet that matches your criteria using a genetic algorithm.
+For the "Generation Type", you should select the "scorer.lua" script or some
+appropriate script.
 
 Once a good planet has been generated, the vegetation will start generating on
 the planet's surface. When this process is done, you can look around using your

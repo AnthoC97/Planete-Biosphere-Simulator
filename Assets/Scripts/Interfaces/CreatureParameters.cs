@@ -42,7 +42,7 @@ public class CreatureParameters : MonoBehaviour
         List<string> list = new List<string>();
         foreach (FileInfo f in dir.GetFiles())
         {
-            list.Add(f.Name);
+            if (f.Name.EndsWith(".lua")) list.Add(f.Name);
         }
         ScriptDropDown.AddOptions(list);
     }

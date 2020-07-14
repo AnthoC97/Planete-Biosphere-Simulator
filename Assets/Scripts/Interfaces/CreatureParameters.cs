@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class CreatureParameters : MonoBehaviour
 {
+    private Simulation simulation;
+
     public InputField creatureName;
     public Slider MeshNum;
     public Slider groupCount;
@@ -21,6 +23,10 @@ public class CreatureParameters : MonoBehaviour
         sprites.Add(Resources.Load<Sprite>("MeshSprite/mesh2"));
         sprites.Add(Resources.Load<Sprite>("MeshSprite/mesh3"));
         creatureName.text = "rabbit";
+
+        simulation = GameObject.Find("Simulation").GetComponent<Simulation>();
+        EntityFactory.Initialize();
+
         updateMesh();
         loadscript();
     }
@@ -47,12 +53,23 @@ public class CreatureParameters : MonoBehaviour
 
     public void Generate()
     {
+        GameObject[] generatedEntities =
+            new GameObject[(int) groupCount.value * (int) groupSize.value];
+
         for (int i = 0; i < groupCount.value; ++i) {
             Vector3 groupPosition = Random.onUnitSphere;
-            for (int j = 0; j < groupSize.value; ++j) {
-                EntityFactory.AddEntityInWorld(creatureName.text,
-                        groupPosition + Random.insideUnitSphere / 10);
+            for (int j = 0; j < (int) groupSize.value; ++j) {
+                generatedEntities[i * (int) groupSize.value + j] =
+                    EntityFactory.AddEntityInWorld(this,
+                            groupPosition + Random.insideUnitSphere / 10);
             }
+        }
+
+        foreach (GameObject entity in generatedEntities) {
+            Vector3 normalizedPosition = entity.transform.position.normalized;
+            entity.transform.position =
+                simulation.GetGroundPositionWithElevation(normalizedPosition,
+                        .5f);
         }
     }
 }

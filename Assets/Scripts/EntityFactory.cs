@@ -68,7 +68,7 @@ public class EntityFactory
         return true;
     }
 
-    public static bool AddEntityInWorld(CreatureParameters parameters,
+    public static GameObject AddEntityInWorld(CreatureParameters parameters,
             Vector3 position)
     {
         // TODO Get the actual entity type configuration
@@ -109,7 +109,7 @@ public class EntityFactory
 
         newEntity.SetActive(true);
 
-        return true;
+        return newEntity;
     }
 
     public static bool AddEntityInWorld(string entityTypeName, float x, float y,

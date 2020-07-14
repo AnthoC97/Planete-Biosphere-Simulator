@@ -37,7 +37,7 @@ public class SpawnerGenerator : MonoBehaviour
     public List<Vector3> positions;
 
     // Start is called before the first frame update
-    void Awake()
+    void Start()
     {
         planet = GetComponent<Planet>();
 

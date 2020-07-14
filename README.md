@@ -10,6 +10,21 @@ Planet Biosphere Simulator is a Unity3D project.
   - Install Lightweight RP 7.2.1.
   - Install Shader Graph 7.1.8.
 
+## Build
+
+Don't use the "Build And Run" option from Unity Editor. Instead, follow those
+steps:
+
+- build the project in Unity Editor via the "Build Settings" window, for the
+  target of your choice
+- copy the Lua scripts that will be needed for the simulation to a `lua` folder
+  in the `_Data` directory of the build
+- run the executable manually
+
+The reason for this is that the "Build And Run" option will empty the
+`_Data/lua` folder during the build process. Thus, no script will be available
+when the software is run with this method.
+
 ## Usage
 
 Upon running the executable, you will be presented with the main menu. This menu

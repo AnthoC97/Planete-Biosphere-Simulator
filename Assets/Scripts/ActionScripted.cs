@@ -31,8 +31,15 @@ public class ActionScripted : Action
             luaScript.Globals["destroy"] =
                 (Action<UnityEngine.Object>)GameObject.Destroy;
 
-            DynValue ret =
+            try {
                 luaScript.DoFile(Application.dataPath + "/lua/" + scriptPath);
+            } catch (ScriptRuntimeException ex) {
+                Debug.LogError("[ActionScripted] Could not read script: "
+                        + ex.DecoratedMessage);
+            } catch (SyntaxErrorException ex) {
+                Debug.LogError("[ActionScripted] Could not read script: "
+                        + ex.DecoratedMessage);
+            }
         }
     }
 

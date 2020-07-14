@@ -41,6 +41,7 @@ public class SpawnerGenerator : MonoBehaviour
     {
         planet = GetComponent<Planet>();
 
+        Random.State rdState = Random.state;
         foreach (SpawnerConfig config in configs)
         {
             switch(config.randomGenerator)
@@ -50,6 +51,7 @@ public class SpawnerGenerator : MonoBehaviour
                 break;
             }
         }
+        Random.state = rdState;
     }
 
     void RandomLinear(SpawnerConfig config)

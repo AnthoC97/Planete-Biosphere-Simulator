@@ -312,7 +312,7 @@ public class GeneticTree : MonoBehaviour
                     maxDistance = trees_score[i];
                     max_index = i;
                 }
-                if (trees_score[i] > maxDistance)
+                else if (trees_score[i] > maxDistance)
                 {
                     maxDistance = trees_score[i];
                     max_index = i;

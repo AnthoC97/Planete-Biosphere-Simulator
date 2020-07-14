@@ -56,7 +56,7 @@ public class MouseOrbitImproved : MonoBehaviour {
 
             Quaternion rotation = Quaternion.Euler(y, x, 0);
 
-            distance = Mathf.Clamp(distance - mouse.scroll.ReadValue().y*scrollSpeed, distanceMin, distanceMax);
+            distance = Mathf.Clamp(distance - mouse.scroll.ReadValue().normalized.y*scrollSpeed, distanceMin, distanceMax);
             //distance = Mathf.Clamp(distance - Input.GetAxis("Mouse ScrollWheel")*scrollSpeed, distanceMin, distanceMax);
 
             /*

@@ -27,17 +27,18 @@ public class ScriptedBehaviour : MonoBehaviour
     {
         Script.GlobalOptions.RethrowExceptionNested = true;
 
-        if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
+        Debug.Log("[Initialize] Application.dataPath: " + Application.dataPath);
+        if (File.Exists(Application.dataPath + "/lua/" + scriptPath)) {
             luaScript = new Script();
             luaScript.Options.ScriptLoader =
                 new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
 
             ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)
              luaScript.Options.ScriptLoader).ModulePaths =
-                new string[] { Application.dataPath + "/../?",
-                    Application.dataPath + "/../?.lua",
+                new string[] { Application.dataPath + "/lua/?",
+                    Application.dataPath + "/lua/?.lua"/*,
                     Application.dataPath + "/?",
-                    Application.dataPath + "/?.lua" };
+                    Application.dataPath + "/?.lua"*/ };
             luaScript.Options.DebugPrint = Debug.Log;
 
             LuaAPI.Register(luaScript);
@@ -72,7 +73,7 @@ public class ScriptedBehaviour : MonoBehaviour
             }
 
             try {
-                luaScript.DoFile(scriptPath);
+                luaScript.DoFile(Application.dataPath + "/lua/" + scriptPath);
             } catch (ScriptRuntimeException ex) {
                 Debug.LogError("[Initialize] Could not read script: "
                         + ex.DecoratedMessage);

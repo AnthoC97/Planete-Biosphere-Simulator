@@ -12,15 +12,15 @@ public class ActionScripted : Action
     {
         this.scriptPath = scriptPath;
 
-        if (File.Exists(Application.dataPath + "/../" + scriptPath)) {
+        if (File.Exists(Application.dataPath + "/lua/" + scriptPath)) {
             luaScript = new Script();
             luaScript.Options.ScriptLoader =
                 new MoonSharp.Interpreter.Loaders.FileSystemScriptLoader();
 
             ((MoonSharp.Interpreter.Loaders.ScriptLoaderBase)
              luaScript.Options.ScriptLoader).ModulePaths =
-                new string[] { Application.dataPath + "/../?",
-                    Application.dataPath + "/../?.lua",
+                new string[] { Application.dataPath + "/lua/?",
+                    Application.dataPath + "/lua/?.lua",
                     Application.dataPath + "/?",
                     Application.dataPath + "/?.lua" };
             luaScript.Options.DebugPrint = Debug.Log;
@@ -31,7 +31,8 @@ public class ActionScripted : Action
             luaScript.Globals["destroy"] =
                 (Action<UnityEngine.Object>)GameObject.Destroy;
 
-            DynValue ret = luaScript.DoFile(scriptPath);
+            DynValue ret =
+                luaScript.DoFile(Application.dataPath + "/lua/" + scriptPath);
         }
     }
 

@@ -34,7 +34,7 @@ public class CreatureParameters : MonoBehaviour
 
     public void loadscript()
     {
-        DirectoryInfo dir = new DirectoryInfo(Application.dataPath /*+ "/lua"*/);
+        DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/lua");
         if (!dir.Exists)
             dir.Create();
 

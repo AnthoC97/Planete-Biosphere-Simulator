@@ -7,6 +7,9 @@ public class LoadOrder : MonoBehaviour
     [SerializeField]
     Planet planet = null;
 
+    [SerializeField]
+    GameObject simulation = null;
+
     GeneticNoise PlanetGN;
 
     private void Awake()
@@ -33,6 +36,6 @@ public class LoadOrder : MonoBehaviour
         planet.GetComponent<GeneticTree>().enabled = true;
 
         // Démarré le spawn des créatures
-
+        simulation.SetActive(true);
     }
 }

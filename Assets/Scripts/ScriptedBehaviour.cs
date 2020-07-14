@@ -27,7 +27,6 @@ public class ScriptedBehaviour : MonoBehaviour
     {
         Script.GlobalOptions.RethrowExceptionNested = true;
 
-        Debug.Log("[Initialize] Application.dataPath: " + Application.dataPath);
         if (File.Exists(Application.dataPath + "/lua/" + scriptPath)) {
             luaScript = new Script();
             luaScript.Options.ScriptLoader =

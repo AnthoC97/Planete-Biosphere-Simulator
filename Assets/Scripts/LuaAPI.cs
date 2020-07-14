@@ -31,6 +31,29 @@ public class LuaAPI
         return normalizedPosition * (1 + elevation) * planet.radius;
     }
 
+    public GameObject
+        FirstWithScriptedBehaviourInSenseRange(GameObject gameObject,
+                string behaviour)
+    {
+        var colliders =
+            Physics.OverlapSphere(gameObject.transform.position, 10, 1);
+
+        foreach (var collider in colliders) {
+            var collided = collider.gameObject;
+            ScriptedBehaviour scriptedBehaviour =
+                collided.GetComponent<ScriptedBehaviour>();
+            if (scriptedBehaviour == null) {
+                continue;
+            }
+            if (scriptedBehaviour.scriptPath.StartsWith(behaviour)) {
+                //print(colliders[i].gameObject.transform.name);
+                return collided;
+            }
+        }
+
+        return null;
+    }
+
     public GameObject AddUISlider(GameObject gameObject, string sharedVar,
             float minValue, float maxValue, float r = 1, float g = 59/255,
             float b = 59/255)

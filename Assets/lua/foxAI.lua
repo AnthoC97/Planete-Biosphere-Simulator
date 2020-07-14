@@ -58,7 +58,8 @@ end
 
 function stateBehaviour()
     if localSharedContext["currentState"] == state.searching_for_food then
-        food = firstWithNameInSenseRange("rabbit");
+        food = API.FirstWithScriptedBehaviourInSenseRange(gameObject,
+                                                          "rabbitAI");
         if (food ~= nil) then
             moveTowards(food);
             eatFood(food);
